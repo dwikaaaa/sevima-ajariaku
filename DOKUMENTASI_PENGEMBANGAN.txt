@@ -1,0 +1,27 @@
+======================================================================
+DOKUMENTASI PENGEMBANGAN: AJARI AKU (EDUKASI RELAWAN 3T)
+======================================================================
+
+1. Problem & Scope
+- Problem: Kesenjangan mutu pendidikan dan keterbatasan guru ahli di wilayah 3T (Tertinggal, Terdepan, Terluar). Siswa kesulitan bimbingan belajar tambahan.
+- Pengguna: Siswa 3T (jenjang SD-SMA), Guru Relawan (pengajar sukarela), dan Administrator (verifikator & pengawas platform).
+- Fitur Inti: Pencarian guru relawan per mapel/wilayah, manajemen slot jadwal ketersediaan guru, booking sesi belajar 1-on-1 dengan video call, countdown jadwal real-time tanpa refresh browser, dashboard khusus multi-role, verifikasi berkas relawan, dan ulasan rating belajar.
+
+2. Hambatan Teknis
+- Kendala: Terjadi error database constraint violation (`1062 Duplicate entry`) saat siswa mencoba mendaftar kembali ke sesi yang sebelumnya pernah ditolak oleh guru pada slot jadwal yang sama. Hal ini disebabkan adanya batasan `unique` pada kolom `schedule_id` di tabel bookings.
+- Solusi: Membuat migration baru untuk menghapus batasan unique pada `bookings.schedule_id` menjadi foreign key biasa. Relasi pada model Schedule diperbarui menggunakan `hasOne(Booking::class)->latestOfMany()` agar tetap mengikat transaksi terkini secara aman.
+
+3. Perubahan Arah
+- Menghapus fitur "Cari Guru" pada navbar akun guru agar fokus kerja guru terarah penuh pada pengelolaan jadwal dan konfirmasi murid.
+- Memindahkan informasi sesi ditolak ke tab switch khusus "Permohonan Ditolak" di dashboard siswa untuk mencegah penumpukan alert banner yang mengganggu kenyamanan visual.
+- Merestrukturisasi navbar admin menggunakan tema seragam dengan dashboard guru/siswa dan memindahkan profil ke dropdown atas untuk membuka akses edit profil mandiri (`profile.edit`) serta logout.
+- Mengganti tampilan ID database pada tabel monitoring admin menjadi nomor urut berbasis `$loop->iteration` agar lebih komunikatif dan ramah pengguna.
+
+4. Keputusan Stack & Tools
+- Stack & Tools: Laravel 11 (PHP 8.x), MySQL, Tailwind CSS, Google Fonts, Material Symbols, dan Jitsi Meet API.
+- Keputusan Teknis Mandiri: Membangun Client-side Real-time Countdown Engine murni di frontend yang disinkronkan dengan server timestamp pada initial render, alih-alih memakai WebSocket berat (Pusher/Reverb). Pendekatan ini sangat hemat kuota internet (low-bandwidth friendly) dan tahan terhadap koneksi lambat di daerah pelosok.
+
+5. Satu Hal Berikutnya
+- Fitur: Integrasi Low-Bandwidth SMS / WhatsApp Notification Gateway.
+- Alasan Prioritas: Banyak siswa di wilayah 3T mengalami kendala kuota internet atau jaringan data putus-nyambung. Notifikasi SMS/WhatsApp langsung ke nomor ponsel wali murid memastikan pengingat jadwal dan tautan kelas darurat tetap diterima secara andal, meminimalisir angka ketidakhadiran siswa dalam sesi belajar.
+======================================================================
