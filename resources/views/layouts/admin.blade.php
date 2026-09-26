@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full">
+<html lang="id" class="h-full bg-slate-50">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>@yield('title', 'Admin Panel — Ajari Aku Nusantara')</title>
+    <title>@yield('title', 'Admin Portal — Ajari Aku Nusantara')</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Material Symbols Outlined -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
 
     <!-- Tailwind CSS with CDN & Configuration matching UI/UX design tokens -->
@@ -55,6 +57,7 @@
             }
         };
     </script>
+
     <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -65,138 +68,246 @@
             vertical-align: middle;
         }
     </style>
+
     @stack('styles')
 </head>
-<body class="bg-surface-container-low font-sans text-on-surface antialiased min-h-screen flex flex-col">
+<body class="h-full font-sans antialiased text-on-surface bg-[#f4f7f6] flex flex-col">
 
-    <!-- Top Command & Status Bar (Pusat Kendali Operasional 3T) -->
-    <header class="bg-primary text-white border-b border-primary-container sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-            
-            <div class="flex items-center gap-4">
+    <!-- Mobile Sidebar Backdrop -->
+    <div id="sidebarBackdrop" class="fixed inset-0 z-40 bg-gray-900/60 backdrop-blur-sm hidden lg:hidden" onclick="toggleAdminSidebar()"></div>
+
+    <!-- Left Sidebar (Panel Navigasi Admin) -->
+    <aside id="adminSidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-[#002821] text-white flex flex-col justify-between transition-transform duration-300 ease-in-out -translate-x-full lg:translate-x-0 border-r border-[#123f36] shadow-xl">
+        
+        <!-- Top Section: Brand Logo & Title -->
+        <div class="flex flex-col">
+            <div class="h-20 flex items-center justify-between px-6 border-b border-white/10 bg-[#001f19]">
                 <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
-                    <div class="w-9 h-9 bg-secondary-container rounded-xl flex items-center justify-center text-on-secondary-container shadow-sm flex-shrink-0">
-                        <span class="material-symbols-outlined text-[20px] font-bold">shield_person</span>
+                    <div class="w-10 h-10 bg-secondary-container text-on-secondary-container rounded-xl flex items-center justify-center font-black text-lg shadow-sm flex-shrink-0">
+                        <span class="material-symbols-outlined text-[22px] font-bold">shield_person</span>
                     </div>
                     <div>
-                        <span class="font-extrabold text-base tracking-tight block leading-tight">Admin Kendali 3T</span>
-                        <span class="text-[10px] text-surface-dim uppercase font-semibold">Ajari Aku Nusantara</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="font-extrabold text-base tracking-tight text-white leading-tight">Ajari Aku</span>
+                        </div>
+                        <span class="inline-block text-[10px] font-bold text-secondary-container uppercase tracking-wider">
+                            Admin Portal
+                        </span>
                     </div>
                 </a>
+
+                <!-- Mobile Close Button -->
+                <button type="button" class="lg:hidden text-gray-300 hover:text-white p-1" onclick="toggleAdminSidebar()">
+                    <span class="material-symbols-outlined text-[22px]">close</span>
+                </button>
             </div>
 
-            <!-- Central Status Indicator -->
-            <div class="hidden md:flex items-center gap-3 text-xs bg-white/10 px-4 py-1.5 rounded-full border border-white/10">
-                <span class="w-2.5 h-2.5 rounded-full bg-secondary-container animate-pulse"></span>
-                <span class="font-bold text-secondary-container">Sistem Operasional Normal</span>
-                <span class="text-surface-dim">• Sinkronisasi Realtime</span>
-            </div>
-
-            <!-- User Menu & Back to Main Web -->
-            <div class="flex items-center gap-3">
-                <a href="{{ route('home') }}" target="_blank" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-surface-dim hover:text-white px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors">
-                    <span class="material-symbols-outlined text-[16px]">visibility</span>
-                    <span>Lihat Web Siswa</span>
+            <!-- Navigation Links -->
+            <nav class="px-4 py-6 space-y-1.5 overflow-y-auto max-h-[calc(100vh-160px)]">
+                
+                <!-- 1. Dashboard -->
+                <a href="{{ route('admin.dashboard') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-secondary-container text-on-secondary-container shadow-sm font-extrabold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.dashboard') ? 'material-symbols-fill' : '' }}">dashboard</span>
+                    <span>Dashboard</span>
                 </a>
 
-                <div class="flex items-center gap-2 border-l border-white/20 pl-3">
-                    <span class="text-xs font-bold hidden sm:inline">{{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
+                <!-- 2. User Management (Dropdown) -->
+                @php
+                    $isUserRoute = request()->routeIs('admin.users.*');
+                    $activeRole = request('role', 'all');
+                @endphp
+                <div>
+                    <button type="button" 
+                            id="userDropdownBtn"
+                            onclick="toggleUserDropdown()"
+                            class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all {{ $isUserRoute ? 'bg-white/15 text-white font-extrabold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                        <div class="flex items-center gap-3">
+                            <span class="material-symbols-outlined text-[20px] {{ $isUserRoute ? 'material-symbols-fill text-secondary-container' : '' }}">group</span>
+                            <span>Manajemen User</span>
+                        </div>
+                        <span id="userDropdownChevron" class="material-symbols-outlined text-[18px] transition-transform duration-200 {{ $isUserRoute ? 'rotate-180' : '' }}">
+                            expand_more
+                        </span>
+                    </button>
+
+                    <!-- Sub-menu Dropdown -->
+                    <div id="userDropdownMenu" class="pl-4 pr-1 pt-1.5 pb-1 space-y-1 {{ $isUserRoute ? '' : 'hidden' }}">
+                        <a href="{{ route('admin.users.index') }}" 
+                           class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all {{ $isUserRoute && $activeRole === 'all' ? 'bg-secondary-container/20 text-secondary-container font-bold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $isUserRoute && $activeRole === 'all' ? 'bg-secondary-container' : 'bg-gray-400' }}"></span>
+                                <span>Semua Pengguna</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('admin.users.index', ['role' => 'guru']) }}" 
+                           class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all {{ $isUserRoute && $activeRole === 'guru' ? 'bg-secondary-container/20 text-secondary-container font-bold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $isUserRoute && $activeRole === 'guru' ? 'bg-secondary-container' : 'bg-gray-400' }}"></span>
+                                <span>Guru Relawan</span>
+                            </div>
+                        </a>
+                        <a href="{{ route('admin.users.index', ['role' => 'siswa']) }}" 
+                           class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all {{ $isUserRoute && $activeRole === 'siswa' ? 'bg-secondary-container/20 text-secondary-container font-bold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                            <div class="flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full {{ $isUserRoute && $activeRole === 'siswa' ? 'bg-secondary-container' : 'bg-gray-400' }}"></span>
+                                <span>Murid / Siswa 3T</span>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. Verifikasi Guru & Relawan -->
+                @php
+                    $pendingCount = \App\Models\Teacher::where('verification_status', 'pending')->count();
+                @endphp
+                <a href="{{ route('admin.teachers.index') }}" 
+                   class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('admin.teachers.*') ? 'bg-secondary-container text-on-secondary-container shadow-sm font-extrabold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.teachers.*') ? 'material-symbols-fill' : '' }}">verified</span>
+                        <span>Verifikasi Guru</span>
+                    </div>
+                    @if($pendingCount > 0)
+                        <span class="bg-amber-400 text-gray-900 text-[10px] font-black px-2 py-0.5 rounded-full">
+                            {{ $pendingCount }}
+                        </span>
+                    @endif
+                </a>
+
+                <!-- 4. Monitoring Sesi Belajar -->
+                <a href="{{ route('admin.sessions.index') }}" 
+                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all {{ request()->routeIs('admin.sessions.*') ? 'bg-secondary-container text-on-secondary-container shadow-sm font-extrabold' : 'text-gray-300 hover:bg-white/10 hover:text-white' }}">
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.sessions.*') ? 'material-symbols-fill' : '' }}">sensors</span>
+                    <span>Monitoring Sesi</span>
+                </a>
+
+            </nav>
+        </div>
+
+        <!-- Bottom User Card & Quick Logout -->
+        <div class="p-4 border-t border-white/10 bg-[#001f19]">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs flex-shrink-0">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-xs font-bold text-white truncate">{{ auth()->user()->name }}</span>
+                        <span class="block text-[10px] text-gray-400 truncate">Administrator</span>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('logout') }}" class="inline flex-shrink-0">
+                    @csrf
+                    <button type="submit" title="Keluar Akun" class="p-2 rounded-lg text-gray-400 hover:text-error hover:bg-white/10 transition-colors">
+                        <span class="material-symbols-outlined text-[20px]">logout</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- Main Content Workspace (Offset by Left Sidebar on Desktop) -->
+    <div class="lg:pl-64 flex flex-col flex-1 min-h-screen">
+        
+        <!-- Clean Admin Topbar (No "Cari Guru" link) -->
+        <header class="h-20 bg-white border-b border-gray-200 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+            
+            <!-- Left: Mobile Toggle & Page Title / Breadcrumb -->
+            <div class="flex items-center gap-3">
+                <button type="button" 
+                        class="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 focus:outline-none" 
+                        onclick="toggleAdminSidebar()">
+                    <span class="material-symbols-outlined text-[24px]">menu</span>
+                </button>
+
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-extrabold text-primary uppercase tracking-wider hidden sm:inline">Pusat Kendali</span>
+                    <span class="text-gray-300 hidden sm:inline">•</span>
+                    <span class="text-xs font-bold text-gray-600">@yield('page_title', 'Ajari Aku Mentoring Nusantara')</span>
+                </div>
+            </div>
+
+            <!-- Right: System Status & User Quick Info -->
+            <div class="flex items-center gap-3">
+                <div class="hidden md:flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Sistem Terhubung</span>
+                </div>
+
+                <div class="flex items-center gap-2 pl-2 border-l border-gray-200">
+                    <span class="text-xs font-bold text-gray-700 hidden sm:inline">{{ auth()->user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}" class="inline">
                         @csrf
-                        <button type="submit" title="Keluar Akun" class="p-1.5 text-surface-dim hover:text-error rounded-lg hover:bg-white/10 transition-colors">
-                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                        <button type="submit" title="Logout" class="p-2 text-gray-400 hover:text-error rounded-xl hover:bg-gray-100 transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">power_settings_new</span>
                         </button>
                     </form>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Navigation Sub-header (Tabs / Breadcrumb Navigation) -->
-    <nav class="bg-white border-b border-surface-container-high px-4 sm:px-6 lg:px-8 shadow-sm">
-        <div class="max-w-7xl mx-auto flex items-center gap-2 overflow-x-auto py-2">
-            <a href="{{ route('admin.dashboard') }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all {{ request()->routeIs('admin.dashboard') ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-                <span class="material-symbols-outlined text-[18px]">dashboard</span>
-                <span>Dashboard & Dampak</span>
-            </a>
-
-            @php
-                $pendingTeachersCount = \App\Models\Teacher::where('verification_status', 'pending')->count();
-            @endphp
-            <a href="{{ route('admin.teachers.index') }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all {{ request()->routeIs('admin.teachers.*') ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-                <span class="material-symbols-outlined text-[18px]">verified</span>
-                <span>Verifikasi Guru & Relawan</span>
-                @if($pendingTeachersCount > 0)
-                    <span class="bg-amber-500 text-white text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
-                        {{ $pendingTeachersCount }}
-                    </span>
-                @endif
-            </a>
-
-            <a href="{{ route('admin.users.index') }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all {{ request()->routeIs('admin.users.*') ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-                <span class="material-symbols-outlined text-[18px]">group</span>
-                <span>Manajemen Pengguna</span>
-            </a>
-
-            <a href="{{ route('admin.sessions.index') }}" 
-               class="px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all {{ request()->routeIs('admin.sessions.*') ? 'bg-primary text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface' }}">
-                <span class="material-symbols-outlined text-[18px]">sensors</span>
-                <span>Monitoring Sesi 3T</span>
-            </a>
-        </div>
-    </nav>
-
-    <!-- Main Content Workspace -->
-    <main class="max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 flex-1">
-        <!-- Flash Alerts -->
-        @if (session('success'))
-            <div class="mb-6 p-4 bg-secondary-container/60 border border-secondary text-on-secondary-container rounded-2xl flex items-center justify-between gap-3 shadow-sm">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-secondary text-[22px]">check_circle</span>
-                    <span class="text-xs font-bold">{{ session('success') }}</span>
+        <!-- Main Body Content -->
+        <main class="flex-1 p-4 sm:p-6 lg:p-8">
+            
+            <!-- Flash Feedback Alerts -->
+            @if (session('success'))
+                <div class="mb-6 p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl flex items-center justify-between gap-3 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-emerald-600 text-[22px]">check_circle</span>
+                        <span class="text-xs font-bold">{{ session('success') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-emerald-700 hover:opacity-75">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-secondary hover:opacity-75">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-        @endif
+            @endif
 
-        @if (session('error'))
-            <div class="mb-6 p-4 bg-error-container/60 border border-error text-error rounded-2xl flex items-center justify-between gap-3 shadow-sm">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-error text-[22px]">error</span>
-                    <span class="text-xs font-bold">{{ session('error') }}</span>
+            @if (session('error'))
+                <div class="mb-6 p-4 bg-red-50 border border-red-300 text-red-900 rounded-2xl flex items-center justify-between gap-3 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-red-600 text-[22px]">error</span>
+                        <span class="text-xs font-bold">{{ session('error') }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="text-red-700 hover:opacity-75">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-error hover:opacity-75">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-        @endif
+            @endif
 
-        @if (session('info'))
-            <div class="mb-6 p-4 bg-surface-container-high border border-outline-variant text-on-surface rounded-2xl flex items-center justify-between gap-3 shadow-sm">
-                <div class="flex items-center gap-2">
-                    <span class="material-symbols-outlined text-primary text-[22px]">info</span>
-                    <span class="text-xs font-bold">{{ session('info') }}</span>
-                </div>
-                <button onclick="this.parentElement.remove()" class="text-outline hover:opacity-75">
-                    <span class="material-symbols-outlined text-[18px]">close</span>
-                </button>
-            </div>
-        @endif
+            @yield('content')
+        </main>
 
-        @yield('content')
-    </main>
+        <!-- Footer Admin -->
+        <footer class="bg-white border-t border-gray-200 px-6 py-4 text-center sm:flex sm:items-center sm:justify-between text-xs text-gray-500">
+            <span>&copy; {{ date('Y') }} Ajari Aku — Mentoring Pelosok Nusantara. Seluruh Hak Cipta Dilindungi.</span>
+            <span class="mt-2 sm:mt-0 font-medium">Panel Kendali Administrator v2.0</span>
+        </footer>
 
-    <!-- Footer Admin -->
-    <footer class="bg-white border-t border-surface-container-high py-4 text-center text-xs text-outline">
-        <div class="max-w-7xl mx-auto px-4">
-            &copy; {{ date('Y') }} Ajari Aku — Platform Edukasi Penghubung Siswa Daerah Terpencil & Guru Relawan.
-        </div>
-    </footer>
+    </div>
+
+    <!-- Sidebar & Dropdown Scripts -->
+    <script>
+        function toggleAdminSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function toggleUserDropdown() {
+            const menu = document.getElementById('userDropdownMenu');
+            const chevron = document.getElementById('userDropdownChevron');
+            menu.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+    </script>
 
     @stack('scripts')
 </body>

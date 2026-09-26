@@ -1,9 +1,10 @@
 @extends('layouts.admin')
 
 @section('title', 'Tinjau Berkas Relawan: ' . $teacher->user->name . ' — Admin Panel')
+@section('page_title', 'Tinjau Berkas Relawan')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-4xl space-y-6">
 
     <!-- Breadcrumb -->
     <div class="flex items-center gap-2 text-xs text-outline">

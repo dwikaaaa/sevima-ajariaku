@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Manajemen Pengguna — Admin Panel')
+@section('page_title', 'Manajemen Pengguna (User Management)')
 
 @section('content')
 <div class="space-y-6">

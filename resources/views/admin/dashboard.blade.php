@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
-@section('title', 'Pusat Kendali Operasional 3T — Dashboard Admin')
+@section('title', 'Dashboard Utama Admin — Ajari Aku')
+@section('page_title', 'Dashboard & Metrik Dampak')
 
 @section('content')
 <div class="space-y-8">

@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', 'Verifikasi Guru & Relawan — Admin Panel')
+@section('page_title', 'Verifikasi Berkas Relawan')
 
 @section('content')
 <div class="space-y-6">
