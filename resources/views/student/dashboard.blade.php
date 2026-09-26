@@ -149,7 +149,7 @@
             </div>
         @endif
 
-        <!-- TAB SWITCHER: MENUNGGU PERSETUJUAN GURU & RIWAYAT SELESAI -->
+        <!-- TAB SWITCHER: MENUNGGU PERSETUJUAN GURU, RIWAYAT SELESAI, & PERMOHONAN DITOLAK -->
         <section class="space-y-6 pt-2 border-t border-surface-container-high">
             
             <!-- Tab Switcher Bar -->
@@ -177,6 +177,18 @@
                         <span>Riwayat Selesai &amp; Catatan Guru</span>
                         <span id="badge-completed" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant">
                             {{ $completedSessions->count() }}
+                        </span>
+                    </button>
+
+                    <!-- Tab 3: Permohonan Ditolak -->
+                    <button type="button" 
+                            id="tab-btn-rejected"
+                            onclick="switchStudentTab('rejected')"
+                            class="student-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">cancel</span>
+                        <span>Permohonan Ditolak</span>
+                        <span id="badge-rejected" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full {{ $cancelledSessions->count() > 0 ? 'bg-red-500 text-white' : 'bg-surface-container-highest text-on-surface-variant' }}">
+                            {{ $cancelledSessions->count() }}
                         </span>
                     </button>
                 </div>
@@ -329,6 +341,73 @@
                 @endif
             </div>
 
+            <!-- PANEL 3: PERMOHONAN DITOLAK -->
+            <div id="tab-panel-rejected" class="student-tab-panel space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-red-500">cancel</span>
+                        <span>Permohonan Belajar Ditolak ({{ $cancelledSessions->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Permohonan yang belum dapat dipenuhi oleh guru relawan</span>
+                </div>
+
+                @if($cancelledSessions->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Tidak ada permohonan sesi belajar yang ditolak.
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($cancelledSessions as $rj)
+                            <div class="p-6 bg-white rounded-2xl border border-red-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <span class="bg-red-100 text-red-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[14px]">cancel</span>
+                                            Permohonan Ditolak
+                                        </span>
+                                        <span class="text-xs text-outline">{{ $rj->updated_at->diffForHumans() }}</span>
+                                    </div>
+
+                                    <div>
+                                        <h4 class="text-sm font-bold text-primary">{{ $rj->teacher->subject }}</h4>
+                                        <p class="text-xs text-on-surface-variant font-medium">Guru Relawan: {{ $rj->teacher->user->name }} ({{ $rj->teacher->origin_location }})</p>
+                                    </div>
+
+                                    <div class="text-xs text-on-surface flex items-center gap-1 font-semibold">
+                                        <span class="material-symbols-outlined text-[15px] text-outline">event</span>
+                                        {{ $rj->schedule ? $rj->schedule->start_time->translatedFormat('d M Y, H:i') . ' - ' . $rj->schedule->end_time->format('H:i') . ' WIB' : 'Jadwal telah lewat' }}
+                                    </div>
+
+                                    @if($rj->cancellation_reason)
+                                        <div class="p-3 bg-red-50/70 rounded-xl border border-red-100 space-y-1">
+                                            <span class="block text-[11px] font-bold text-red-900 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">info</span>
+                                                Alasan Penolakan dari Guru:
+                                            </span>
+                                            <p class="text-xs text-red-800 italic">"{{ $rj->cancellation_reason }}"</p>
+                                        </div>
+                                    @endif
+
+                                    @if($rj->notes)
+                                        <div class="text-[11px] text-outline">
+                                            <strong>Catatan belajarmu:</strong> "{{ $rj->notes }}"
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="pt-3 border-t border-surface-container-high flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                    <span class="text-[11px] text-on-surface-variant font-medium">Jangan berkecil hati, kamu bisa mencari guru relawan lainnya:</span>
+                                    <a href="{{ route('teachers.index') }}" class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-xs transition-all flex items-center gap-1 shrink-0">
+                                        <span class="material-symbols-outlined text-[15px]">search</span>
+                                        <span>Cari Guru Lain</span>
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
         </section>
 
     </div>
@@ -339,7 +418,7 @@
 @push('scripts')
 <script>
     function switchStudentTab(tabName) {
-        const tabs = ['pending', 'completed'];
+        const tabs = ['pending', 'completed', 'rejected'];
         
         tabs.forEach(t => {
             const btn = document.getElementById(`tab-btn-${t}`);
@@ -369,10 +448,9 @@
         let initialTab = 'pending';
         const hash = window.location.hash.replace('#', '');
         
-        if (['pending', 'completed'].includes(hash)) {
+        if (['pending', 'completed', 'rejected'].includes(hash)) {
             initialTab = hash;
         } else {
-            // Cerdas: dahulukan permohonan yang pending, jika kosong beralih ke completed
             @if($pendingSessions->count() > 0)
                 initialTab = 'pending';
             @elseif($completedSessions->count() > 0)

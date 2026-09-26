@@ -67,6 +67,42 @@
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+
+        /* Notifikasi Animasi: Slide In dari Kanan ke Kiri & Slide Out dari Kiri ke Kanan */
+        @keyframes toastSlideInRightToLeft {
+            0% {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastSlideOutLeftToRight {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes toastProgress {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .toast-slide-in {
+            animation: toastSlideInRightToLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .toast-slide-out {
+            animation: toastSlideOutLeftToRight 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
     </style>
 
     @stack('styles')
@@ -251,30 +287,48 @@
         <!-- Main Body Content -->
         <main class="flex-1 p-4 sm:p-6 lg:p-8">
             
-            <!-- Flash Feedback Alerts -->
+        <!-- Floating Fixed Toast Notifications (Tidak menggeser layout) -->
+        <div id="adminToastNotificationContainer" class="fixed top-20 right-4 sm:right-8 z-[9999] flex flex-col items-end gap-3 max-w-md w-[calc(100%-2rem)] sm:w-auto pointer-events-none">
             @if (session('success'))
-                <div class="mb-6 p-4 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-emerald-600 text-[22px]">check_circle</span>
-                        <span class="text-xs font-bold">{{ session('success') }}</span>
+                <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-emerald-300 text-emerald-950 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-emerald-600 text-[24px] shrink-0 mt-0.5">check_circle</span>
+                            <div>
+                                <span class="block text-xs font-bold text-emerald-900">Berhasil!</span>
+                                <span class="text-xs text-emerald-800 leading-relaxed font-medium">{{ session('success') }}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="toast-close-btn text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100/60 p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-emerald-700 hover:opacity-75">
-                        <span class="material-symbols-outlined text-[18px]">close</span>
-                    </button>
+                    <div class="h-1 bg-emerald-100 rounded-full overflow-hidden mt-1">
+                        <div class="h-full bg-emerald-500 toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
+                    </div>
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="mb-6 p-4 bg-red-50 border border-red-300 text-red-900 rounded-2xl flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-red-600 text-[22px]">error</span>
-                        <span class="text-xs font-bold">{{ session('error') }}</span>
+                <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-red-300 text-red-950 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-2.5">
+                            <span class="material-symbols-outlined text-red-600 text-[24px] shrink-0 mt-0.5">error</span>
+                            <div>
+                                <span class="block text-xs font-bold text-red-900">Pemberitahuan</span>
+                                <span class="text-xs text-red-800 leading-relaxed font-medium">{{ session('error') }}</span>
+                            </div>
+                        </div>
+                        <button type="button" class="toast-close-btn text-red-700 hover:text-red-900 hover:bg-red-100/60 p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-red-700 hover:opacity-75">
-                        <span class="material-symbols-outlined text-[18px]">close</span>
-                    </button>
+                    <div class="h-1 bg-red-100 rounded-full overflow-hidden mt-1">
+                        <div class="h-full bg-red-500 toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
+                    </div>
                 </div>
             @endif
+        </div>
 
             @yield('content')
         </main>
@@ -307,6 +361,33 @@
             menu.classList.toggle('hidden');
             chevron.classList.toggle('rotate-180');
         }
+
+        function dismissToastItem(toastEl) {
+            if (!toastEl || toastEl.dataset.dismissing === 'true') return;
+            toastEl.dataset.dismissing = 'true';
+            toastEl.classList.remove('toast-slide-in');
+            toastEl.classList.add('toast-slide-out');
+            setTimeout(() => {
+                toastEl.remove();
+            }, 420);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toasts = document.querySelectorAll('.app-toast-item');
+            toasts.forEach(toast => {
+                const autoDismissTimer = setTimeout(() => {
+                    dismissToastItem(toast);
+                }, 5000);
+
+                const closeBtn = toast.querySelector('.toast-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        clearTimeout(autoDismissTimer);
+                        dismissToastItem(toast);
+                    });
+                }
+            });
+        });
     </script>
 
     @stack('scripts')

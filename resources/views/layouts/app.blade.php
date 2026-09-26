@@ -67,6 +67,42 @@
             font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
             vertical-align: middle;
         }
+
+        /* Notifikasi Animasi: Slide In dari Kanan ke Kiri & Slide Out dari Kiri ke Kanan */
+        @keyframes toastSlideInRightToLeft {
+            0% {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes toastSlideOutLeftToRight {
+            0% {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(120%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes toastProgress {
+            0% { width: 100%; }
+            100% { width: 0%; }
+        }
+
+        .toast-slide-in {
+            animation: toastSlideInRightToLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .toast-slide-out {
+            animation: toastSlideOutLeftToRight 0.4s cubic-bezier(0.7, 0, 0.84, 0) forwards;
+        }
     </style>
 
     @stack('styles')
@@ -289,71 +325,95 @@
         </div>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="w-full pt-20 flex-1 bg-surface-container-lowest">
-        <!-- Flash Feedback Notifications -->
+    <!-- Floating Fixed Toast Notifications (Tidak menggeser layout halaman) -->
+    <div id="toastNotificationContainer" class="fixed top-24 right-4 sm:right-8 z-[9999] flex flex-col items-end gap-3 max-w-md w-[calc(100%-2rem)] sm:w-auto pointer-events-none">
         @if (session('success'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                <div class="p-4 bg-secondary-container/60 border border-secondary text-on-secondary-container rounded-xl flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-secondary text-[22px]">check_circle</span>
-                        <span class="text-sm font-semibold">{{ session('success') }}</span>
+            <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-emerald-300 text-emerald-950 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-2.5">
+                        <span class="material-symbols-outlined text-emerald-600 text-[24px] shrink-0 mt-0.5">check_circle</span>
+                        <div>
+                            <span class="block text-xs font-bold text-emerald-900">Berhasil!</span>
+                            <span class="text-xs text-emerald-800 leading-relaxed font-medium">{{ session('success') }}</span>
+                        </div>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-secondary hover:opacity-75">
+                    <button type="button" class="toast-close-btn text-emerald-700 hover:text-emerald-900 hover:bg-emerald-100/60 p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
                         <span class="material-symbols-outlined text-[18px]">close</span>
                     </button>
+                </div>
+                <div class="h-1 bg-emerald-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-emerald-500 toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
                 </div>
             </div>
         @endif
 
         @if (session('error'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                <div class="p-4 bg-error-container/60 border border-error text-error rounded-xl flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-error text-[22px]">error</span>
-                        <span class="text-sm font-semibold">{{ session('error') }}</span>
+            <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-red-300 text-red-950 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-2.5">
+                        <span class="material-symbols-outlined text-red-600 text-[24px] shrink-0 mt-0.5">error</span>
+                        <div>
+                            <span class="block text-xs font-bold text-red-900">Pemberitahuan</span>
+                            <span class="text-xs text-red-800 leading-relaxed font-medium">{{ session('error') }}</span>
+                        </div>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-error hover:opacity-75">
+                    <button type="button" class="toast-close-btn text-red-700 hover:text-red-900 hover:bg-red-100/60 p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
                         <span class="material-symbols-outlined text-[18px]">close</span>
                     </button>
+                </div>
+                <div class="h-1 bg-red-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-red-500 toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
                 </div>
             </div>
         @endif
 
         @if ($errors->any())
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                <div class="p-4 bg-error-container/60 border border-error text-error rounded-xl space-y-1 shadow-sm">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-2 font-bold text-sm">
-                            <span class="material-symbols-outlined text-error text-[20px]">warning</span>
-                            <span>Terdapat kendala pada isian formulir:</span>
+            <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-amber-300 text-amber-950 rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-2.5">
+                        <span class="material-symbols-outlined text-amber-600 text-[24px] shrink-0 mt-0.5">warning</span>
+                        <div class="space-y-1">
+                            <span class="block text-xs font-bold text-amber-900">Periksa formulir isian:</span>
+                            <ul class="list-disc list-inside text-xs text-amber-800 space-y-0.5 pl-1">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                        <button onclick="this.parentElement.parentElement.remove()" class="text-error hover:opacity-75">
-                            <span class="material-symbols-outlined text-[18px]">close</span>
-                        </button>
                     </div>
-                    <ul class="list-disc list-inside text-xs pl-6 space-y-0.5">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+                    <button type="button" class="toast-close-btn text-amber-700 hover:text-amber-900 hover:bg-amber-100/60 p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
+                        <span class="material-symbols-outlined text-[18px]">close</span>
+                    </button>
+                </div>
+                <div class="h-1 bg-amber-100 rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-amber-500 toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
                 </div>
             </div>
         @endif
 
         @if (session('info'))
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                <div class="p-4 bg-surface-container-high border border-outline-variant text-on-surface rounded-xl flex items-center justify-between gap-3 shadow-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="material-symbols-outlined text-primary text-[22px]">info</span>
-                        <span class="text-sm font-semibold">{{ session('info') }}</span>
+            <div class="app-toast-item pointer-events-auto toast-slide-in p-4 bg-white/95 backdrop-blur-md border border-primary/30 text-primary rounded-2xl shadow-xl flex flex-col gap-1.5 min-w-[300px] sm:min-w-[360px]" role="alert">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex items-start gap-2.5">
+                        <span class="material-symbols-outlined text-primary text-[24px] shrink-0 mt-0.5">info</span>
+                        <div>
+                            <span class="block text-xs font-bold text-primary">Informasi</span>
+                            <span class="text-xs text-on-surface-variant leading-relaxed font-medium">{{ session('info') }}</span>
+                        </div>
                     </div>
-                    <button onclick="this.parentElement.remove()" class="text-outline hover:opacity-75">
+                    <button type="button" class="toast-close-btn text-outline hover:text-primary hover:bg-surface-container-high p-1 rounded-lg transition-colors shrink-0" aria-label="Tutup">
                         <span class="material-symbols-outlined text-[18px]">close</span>
                     </button>
                 </div>
+                <div class="h-1 bg-surface-container-high rounded-full overflow-hidden mt-1">
+                    <div class="h-full bg-primary toast-progress-bar" style="animation: toastProgress 5s linear forwards;"></div>
+                </div>
             </div>
         @endif
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="w-full pt-20 flex-1 bg-surface-container-lowest">
 
         <!-- Page Yield Content -->
         @yield('content')
@@ -575,9 +635,35 @@
             });
         }
 
+        function dismissToastItem(toastEl) {
+            if (!toastEl || toastEl.dataset.dismissing === 'true') return;
+            toastEl.dataset.dismissing = 'true';
+            toastEl.classList.remove('toast-slide-in');
+            toastEl.classList.add('toast-slide-out');
+            setTimeout(() => {
+                toastEl.remove();
+            }, 420);
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             tickRealtimeSchedules();
             setInterval(tickRealtimeSchedules, 1000);
+
+            // Inisialisasi auto-dismiss 5 detik & listener tombol tutup notifikasi
+            const toasts = document.querySelectorAll('.app-toast-item');
+            toasts.forEach(toast => {
+                const autoDismissTimer = setTimeout(() => {
+                    dismissToastItem(toast);
+                }, 5000);
+
+                const closeBtn = toast.querySelector('.toast-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        clearTimeout(autoDismissTimer);
+                        dismissToastItem(toast);
+                    });
+                }
+            });
         });
     </script>
 
