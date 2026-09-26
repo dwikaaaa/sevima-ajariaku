@@ -101,117 +101,270 @@
             </section>
         @endif
 
-        <!-- 2. DAFTAR SESI MENUNGGU KONFIRMASI GURU -->
-        <section class="space-y-4">
-            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-amber-500">pending_actions</span>
-                <span>Sesi Menunggu Persetujuan Guru ({{ $pendingSessions->count() }})</span>
-            </h3>
-
-            @if($pendingSessions->isEmpty())
-                <div class="p-6 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
-                    Tidak ada permohonan sesi belajar yang sedang menunggu.
-                </div>
-            @else
+        @if($upcomingSessions->count() > 1)
+            <div class="space-y-3">
+                <h4 class="text-sm font-extrabold text-primary flex items-center gap-1.5">
+                    <span class="material-symbols-outlined text-[18px] text-secondary">calendar_month</span>
+                    <span>Sesi Terjadwal Lainnya ({{ $upcomingSessions->count() - 1 }})</span>
+                </h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @foreach($pendingSessions as $p)
-                        <div class="p-5 bg-white rounded-2xl border border-surface-container-high shadow-sm flex flex-col justify-between">
-                            <div>
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                                        Menunggu Persetujuan
-                                    </span>
-                                    <span class="text-xs text-outline">{{ $p->created_at->diffForHumans() }}</span>
-                                </div>
-                                <h4 class="text-sm font-bold text-primary">{{ $p->teacher->subject }}</h4>
-                                <p class="text-xs text-on-surface-variant font-medium">Guru: {{ $p->teacher->user->name }} ({{ $p->teacher->origin_location }})</p>
-                                
-                                <div class="mt-3 text-xs text-on-surface flex items-center gap-1 font-semibold">
-                                    <span class="material-symbols-outlined text-[15px] text-secondary">event</span>
-                                    {{ $p->schedule->start_time->translatedFormat('d M Y, H:i') }} WIB
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-
-        <!-- 3. RIWAYAT SESI SELESAI & EVALUASI GURU -->
-        <section class="space-y-4">
-            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-secondary">task_alt</span>
-                <span>Riwayat Selesai & Catatan Guru ({{ $completedSessions->count() }})</span>
-            </h3>
-
-            @if($completedSessions->isEmpty())
-                <div class="p-6 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
-                    Belum ada sesi belajar yang diselesaikan.
-                </div>
-            @else
-                <div class="space-y-4">
-                    @foreach($completedSessions as $c)
-                        <div class="p-6 bg-white rounded-2xl border border-surface-container-high shadow-sm space-y-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-container-high pb-3">
-                                <div>
-                                    <h4 class="text-sm font-bold text-primary">{{ $c->teacher->subject }} bersama {{ $c->teacher->user->name }}</h4>
-                                    <span class="text-xs text-outline">Selesai pada: {{ $c->completed_at ? $c->completed_at->translatedFormat('d F Y, H:i') : $c->updated_at->translatedFormat('d F Y') }}</span>
-                                </div>
-                                <span class="bg-secondary-container/50 text-on-secondary-container px-3 py-1 rounded-full text-xs font-bold self-start">
-                                    Selesai
+                    @foreach($upcomingSessions->slice(1) as $extraSession)
+                        <div class="bg-white p-5 rounded-2xl border border-secondary/20 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="bg-secondary-container text-on-secondary-container text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                                    Disetujui
                                 </span>
+                                <span class="text-xs text-outline">{{ $extraSession->schedule->start_time->translatedFormat('d M Y') }}</span>
                             </div>
-
-                            <!-- Summary Notes dari Guru -->
-                            @if($c->summary_notes)
-                                <div class="bg-surface-container-low p-4 rounded-xl border border-surface-container-high">
-                                    <div class="flex items-center gap-1.5 text-xs font-bold text-primary mb-1">
-                                        <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
-                                        <span>Rangkuman Belajar & Pesan Guru:</span>
-                                    </div>
-                                    <p class="text-xs text-on-surface-variant leading-relaxed">{{ $c->summary_notes }}</p>
-                                </div>
-                            @endif
-
-                            <!-- Form Review Jika Belum Diulas -->
-                            <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                @if($c->review)
-                                    <div class="text-xs text-outline flex items-center gap-1.5">
-                                        <span>Ulasan Anda:</span>
-                                        <div class="flex items-center text-amber-500">
-                                            @for($i=1; $i<=5; $i++)
-                                                <span class="material-symbols-outlined text-[14px] {{ $i <= $c->review->rating ? 'material-symbols-fill text-amber-500' : 'text-outline-variant' }}">star</span>
-                                            @endfor
-                                        </div>
-                                        <span>"{{ $c->review->comment }}"</span>
-                                    </div>
-                                @elseif($c->canBeReviewed())
-                                    <form action="{{ route('student.bookings.review', $c) }}" method="POST" class="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                                        @csrf
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-xs font-bold text-primary">Beri Rating:</span>
-                                            <select name="rating" class="text-xs rounded-lg border-surface-container-high focus:ring-primary focus:border-primary py-1" required>
-                                                <option value="5">⭐⭐⭐⭐⭐ (5 - Sangat Bagus)</option>
-                                                <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
-                                                <option value="3">⭐⭐⭐ (3 - Cukup)</option>
-                                                <option value="2">⭐⭐ (2 - Kurang)</option>
-                                                <option value="1">⭐ (1 - Buruk)</option>
-                                            </select>
-                                        </div>
-                                        <input type="text" name="comment" placeholder="Tulis ulasan/ucapan terima kasih untuk guru..." class="flex-1 text-xs rounded-lg border-surface-container-high focus:ring-primary focus:border-primary py-1 px-3">
-                                        <button type="submit" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-primary text-white hover:bg-primary-container transition-all">
-                                            Kirim Ulasan
-                                        </button>
-                                    </form>
+                            <div>
+                                <h5 class="text-sm font-bold text-primary">{{ $extraSession->teacher->subject }}</h5>
+                                <p class="text-xs text-on-surface-variant font-medium">bersama {{ $extraSession->teacher->user->name }}</p>
+                            </div>
+                            <div class="flex items-center justify-between pt-2 border-t border-surface-container-high">
+                                <span class="text-xs text-on-surface font-semibold flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[16px] text-secondary">schedule</span>
+                                    {{ $extraSession->schedule->start_time->format('H:i') }} - {{ $extraSession->schedule->end_time->format('H:i') }} WIB
+                                </span>
+                                @if($extraSession->link_meeting)
+                                    <a href="{{ $extraSession->link_meeting }}" target="_blank" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[14px]">videocam</span>
+                                        <span>Ruang Belajar</span>
+                                    </a>
                                 @endif
                             </div>
                         </div>
                     @endforeach
                 </div>
-            @endif
+            </div>
+        @endif
+
+        <!-- TAB SWITCHER: MENUNGGU PERSETUJUAN GURU & RIWAYAT SELESAI -->
+        <section class="space-y-6 pt-2 border-t border-surface-container-high">
+            
+            <!-- Tab Switcher Bar -->
+            <div class="bg-surface-container-low p-1.5 rounded-2xl border border-surface-container-high flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+                <div class="flex items-center gap-1.5 overflow-x-auto p-0.5">
+                    
+                    <!-- Tab 1: Sesi Menunggu Persetujuan Guru -->
+                    <button type="button" 
+                            id="tab-btn-pending"
+                            onclick="switchStudentTab('pending')"
+                            class="student-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">pending_actions</span>
+                        <span>Sesi Menunggu Persetujuan <span class="hidden sm:inline">Guru</span></span>
+                        <span id="badge-pending" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full {{ $pendingSessions->count() > 0 ? 'bg-amber-500 text-white' : 'bg-surface-container-highest text-on-surface-variant' }}">
+                            {{ $pendingSessions->count() }}
+                        </span>
+                    </button>
+
+                    <!-- Tab 2: Riwayat Selesai & Catatan Guru -->
+                    <button type="button" 
+                            id="tab-btn-completed"
+                            onclick="switchStudentTab('completed')"
+                            class="student-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">task_alt</span>
+                        <span>Riwayat Selesai &amp; Catatan Guru</span>
+                        <span id="badge-completed" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant">
+                            {{ $completedSessions->count() }}
+                        </span>
+                    </button>
+                </div>
+
+                <div class="hidden md:flex items-center gap-2 text-xs text-on-surface-variant px-3">
+                    <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                    <span class="font-medium">Navigasi Langsung (Tanpa Reload)</span>
+                </div>
+            </div>
+
+            <!-- PANEL 1: SESI MENUNGGU PERSETUJUAN GURU -->
+            <div id="tab-panel-pending" class="student-tab-panel space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500">pending_actions</span>
+                        <span>Sesi Menunggu Persetujuan Guru ({{ $pendingSessions->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Menunggu konfirmasi ketersediaan dari guru relawan</span>
+                </div>
+
+                @if($pendingSessions->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Tidak ada permohonan sesi belajar yang sedang menunggu.
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        @foreach($pendingSessions as $p)
+                            <div class="p-5 bg-white rounded-2xl border border-surface-container-high shadow-sm flex flex-col justify-between space-y-3">
+                                <div>
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                                            Menunggu Persetujuan
+                                        </span>
+                                        <span class="text-xs text-outline">{{ $p->created_at->diffForHumans() }}</span>
+                                    </div>
+                                    <h4 class="text-sm font-bold text-primary">{{ $p->teacher->subject }}</h4>
+                                    <p class="text-xs text-on-surface-variant font-medium">Guru: {{ $p->teacher->user->name }} ({{ $p->teacher->origin_location }})</p>
+                                    
+                                    <div class="mt-3 text-xs text-on-surface flex items-center gap-1 font-semibold">
+                                        <span class="material-symbols-outlined text-[15px] text-secondary">event</span>
+                                        {{ $p->schedule->start_time->translatedFormat('d M Y, H:i') }} - {{ $p->schedule->end_time->format('H:i') }} WIB
+                                    </div>
+
+                                    @if($p->notes)
+                                        <div class="mt-2 text-xs bg-surface-container-low p-2.5 rounded-xl text-on-surface-variant italic">
+                                            "{{ $p->notes }}"
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <!-- PANEL 2: RIWAYAT SELESAI & CATATAN GURU -->
+            <div id="tab-panel-completed" class="student-tab-panel space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">task_alt</span>
+                        <span>Riwayat Selesai &amp; Catatan Guru ({{ $completedSessions->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Rangkuman belajar, evaluasi, dan ulasan sesi</span>
+                </div>
+
+                @if($completedSessions->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Belum ada sesi belajar yang diselesaikan.
+                    </div>
+                @else
+                    <div class="space-y-4">
+                        @foreach($completedSessions as $c)
+                            <div class="p-6 bg-white rounded-2xl border border-surface-container-high shadow-sm space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-surface-container-high pb-3">
+                                    <div>
+                                        <div class="flex items-center gap-2 flex-wrap mb-1">
+                                            <span class="bg-secondary-container/50 text-on-secondary-container px-2.5 py-0.5 rounded-full text-[11px] font-bold">
+                                                Selesai Belajar
+                                            </span>
+                                            @if($c->student_attendance)
+                                                <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full text-[11px] font-bold">
+                                                    Anda Hadir
+                                                </span>
+                                            @else
+                                                <span class="bg-red-100 text-red-800 px-2 py-0.5 rounded-full text-[11px] font-bold">
+                                                    Tidak Hadir
+                                                </span>
+                                            @endif
+                                        </div>
+                                        <h4 class="text-sm font-bold text-primary">{{ $c->teacher->subject }} bersama {{ $c->teacher->user->name }}</h4>
+                                        <span class="text-xs text-outline">Selesai pada: {{ $c->completed_at ? $c->completed_at->translatedFormat('d F Y, H:i') : $c->updated_at->translatedFormat('d F Y') }} WIB</span>
+                                    </div>
+                                    <div class="text-xs text-outline">
+                                        {{ $c->schedule ? $c->schedule->start_time->translatedFormat('l, d F Y') : '' }}
+                                    </div>
+                                </div>
+
+                                <!-- Summary Notes dari Guru -->
+                                @if($c->summary_notes)
+                                    <div class="bg-surface-container-low p-4 rounded-xl border border-surface-container-high">
+                                        <div class="flex items-center gap-1.5 text-xs font-bold text-primary mb-1">
+                                            <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
+                                            <span>Rangkuman Belajar &amp; Pesan Guru:</span>
+                                        </div>
+                                        <p class="text-xs text-on-surface-variant leading-relaxed">{{ $c->summary_notes }}</p>
+                                    </div>
+                                @endif
+
+                                <!-- Form Review Jika Belum Diulas -->
+                                <div class="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    @if($c->review)
+                                        <div class="text-xs text-outline flex items-center gap-1.5 flex-wrap">
+                                            <span class="font-bold text-primary">Ulasan Anda:</span>
+                                            <div class="flex items-center text-amber-500">
+                                                @for($i=1; $i<=5; $i++)
+                                                    <span class="material-symbols-outlined text-[16px] {{ $i <= $c->review->rating ? 'material-symbols-fill text-amber-500' : 'text-outline-variant' }}">star</span>
+                                                @endfor
+                                            </div>
+                                            <span class="italic">"{{ $c->review->comment }}"</span>
+                                        </div>
+                                    @elseif($c->canBeReviewed())
+                                        <form action="{{ route('student.bookings.review', $c) }}" method="POST" class="w-full flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                            @csrf
+                                            <div class="flex items-center gap-2">
+                                                <span class="text-xs font-bold text-primary flex-shrink-0">Beri Rating:</span>
+                                                <select name="rating" class="text-xs rounded-xl border-surface-container-high focus:ring-primary focus:border-primary py-1.5" required>
+                                                    <option value="5">⭐⭐⭐⭐⭐ (5 - Sangat Bagus)</option>
+                                                    <option value="4">⭐⭐⭐⭐ (4 - Bagus)</option>
+                                                    <option value="3">⭐⭐⭐ (3 - Cukup)</option>
+                                                    <option value="2">⭐⭐ (2 - Kurang)</option>
+                                                    <option value="1">⭐ (1 - Buruk)</option>
+                                                </select>
+                                            </div>
+                                            <input type="text" name="comment" placeholder="Tulis ulasan/ucapan terima kasih untuk guru..." class="flex-1 text-xs rounded-xl border-surface-container-high focus:ring-primary focus:border-primary py-1.5 px-3">
+                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-sm transition-all flex items-center justify-center gap-1">
+                                                <span class="material-symbols-outlined text-[14px]">send</span>
+                                                <span>Kirim Ulasan</span>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
         </section>
 
     </div>
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function switchStudentTab(tabName) {
+        const tabs = ['pending', 'completed'];
+        
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-btn-${t}`);
+            const panel = document.getElementById(`tab-panel-${t}`);
+            
+            if (!btn || !panel) return;
+
+            if (t === tabName) {
+                btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-on-surface');
+                panel.classList.remove('hidden');
+            } else {
+                btn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-on-surface');
+                panel.classList.add('hidden');
+            }
+        });
+
+        // Simpan hash di URL tanpa reload browser
+        if (history.replaceState) {
+            history.replaceState(null, null, '#' + tabName);
+        }
+    }
+
+    // Inisialisasi tab aktif saat halaman selesai dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+        let initialTab = 'pending';
+        const hash = window.location.hash.replace('#', '');
+        
+        if (['pending', 'completed'].includes(hash)) {
+            initialTab = hash;
+        } else {
+            // Cerdas: dahulukan permohonan yang pending, jika kosong beralih ke completed
+            @if($pendingSessions->count() > 0)
+                initialTab = 'pending';
+            @elseif($completedSessions->count() > 0)
+                initialTab = 'completed';
+            @endif
+        }
+        
+        switchStudentTab(initialTab);
+    });
+</script>
+@endpush
