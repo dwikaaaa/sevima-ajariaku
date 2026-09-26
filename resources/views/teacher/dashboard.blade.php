@@ -119,6 +119,14 @@
                                         <span class="material-symbols-outlined text-[14px] text-outline">schedule</span>
                                         {{ $sch->start_time->format('H:i') }} - {{ $sch->end_time->format('H:i') }} WIB
                                     </span>
+                                    <div class="mt-1">
+                                        <span class="realtime-schedule-pill text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1"
+                                              data-start-time="{{ $sch->start_time->toIso8601String() }}"
+                                              data-end-time="{{ $sch->end_time->toIso8601String() }}"
+                                              data-mode="slot">
+                                            <span class="realtime-text font-mono">Memuat...</span>
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <form action="{{ route('teacher.schedules.destroy', $sch) }}" method="POST" onsubmit="return confirm('Hapus slot ketersediaan ini?')">
@@ -218,9 +226,17 @@
                                     </p>
 
                                     <div class="p-3 bg-surface-container-low rounded-xl text-xs space-y-1">
-                                        <div class="font-bold text-primary flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-[16px] text-secondary">calendar_month</span>
-                                            {{ $pb->schedule->start_time->translatedFormat('l, d F Y (H:i') }} - {{ $pb->schedule->end_time->format('H:i') }} WIB)
+                                        <div class="font-bold text-primary flex items-center justify-between flex-wrap gap-1">
+                                            <div class="flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px] text-secondary">calendar_month</span>
+                                                {{ $pb->schedule->start_time->translatedFormat('l, d F Y (H:i') }} - {{ $pb->schedule->end_time->format('H:i') }} WIB)
+                                            </div>
+                                            <span class="realtime-schedule-pill text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                                                  data-start-time="{{ $pb->schedule->start_time->toIso8601String() }}"
+                                                  data-end-time="{{ $pb->schedule->end_time->toIso8601String() }}"
+                                                  data-mode="pending">
+                                                <span class="realtime-text">Menghitung...</span>
+                                            </span>
                                         </div>
                                         @if($pb->notes)
                                             <p class="text-on-surface-variant italic">"{{ $pb->notes }}"</p>
@@ -306,51 +322,57 @@
                                     $endTimeStr = $ab->schedule?->end_time ? $ab->schedule->end_time->format('H:i') : '-';
                                 @endphp
 
-                                <!-- Status Sesi & Form Selesaikan Sesi -->
-                                @if(! $isEnded)
-                                    <!-- Sesi Masih Berlangsung / Belum Melewati Waktu Jadwal -->
-                                    <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3">
-                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                            <div class="flex items-start gap-2.5">
-                                                <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">timer</span>
-                                                <div>
-                                                    <h5 class="text-xs font-bold text-amber-950">Sesi Belajar Sedang Berlangsung</h5>
-                                                    <p class="text-[11px] text-amber-800 mt-0.5">
-                                                        Sesuai ketentuan, Anda hanya dapat menandai sesi ini selesai setelah waktu jadwal berakhir pada pukul <strong class="text-amber-950">{{ $endTimeStr }} WIB</strong>.
-                                                    </p>
-                                                </div>
+                                <!-- Status Sesi & Form Selesaikan Sesi (Mendukung Realtime Live Unlock) -->
+                                
+                                <!-- 1. Kontainer Terkunci (Sesi Masih Berlangsung / Belum Berakhir) -->
+                                <div id="session-locked-{{ $ab->id }}" class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3 {{ $isEnded ? 'hidden' : '' }}">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-start gap-2.5">
+                                            <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">timer</span>
+                                            <div>
+                                                <h5 class="text-xs font-bold text-amber-950">Sesi Belajar Sedang / Akan Berlangsung</h5>
+                                                <p class="text-[11px] text-amber-800 mt-0.5">
+                                                    Sesuai ketentuan, Anda dapat menandai sesi ini selesai setelah waktu jadwal berakhir pada pukul <strong class="text-amber-950">{{ $endTimeStr }} WIB</strong>.
+                                                    <span class="text-secondary font-bold">(Formulir akan otomatis terbuka secara realtime tanpa perlu refresh browser).</span>
+                                                </p>
                                             </div>
-                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 self-start sm:self-auto flex-shrink-0">
-                                                <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                                                Selesai dalam {{ now()->diffForHumans($ab->schedule->end_time, true) }}
+                                        </div>
+                                        <span class="realtime-schedule-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 self-start sm:self-auto flex-shrink-0 shadow-xs"
+                                              data-booking-id="{{ $ab->id }}"
+                                              data-start-time="{{ $ab->schedule->start_time->toIso8601String() }}"
+                                              data-end-time="{{ $ab->schedule->end_time->toIso8601String() }}"
+                                              data-mode="teacher">
+                                            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+                                            <span class="realtime-text">Menghitung waktu...</span>
+                                        </span>
+                                    </div>
+
+                                    <!-- Form Disabled State -->
+                                    <div class="opacity-60 pointer-events-none filter grayscale-[30%] pt-2 border-t border-amber-200/60">
+                                        <div class="flex items-center justify-between gap-2 mb-2">
+                                            <span class="text-xs font-bold text-gray-700 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">edit_note</span>
+                                                Catatan Rangkuman Belajar Murid
+                                            </span>
+                                            <span class="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                                                Terkunci sampai {{ $endTimeStr }} WIB
                                             </span>
                                         </div>
-
-                                        <!-- Form Disabled State -->
-                                        <div class="opacity-60 pointer-events-none filter grayscale-[30%] pt-2 border-t border-amber-200/60">
-                                            <div class="flex items-center justify-between gap-2 mb-2">
-                                                <span class="text-xs font-bold text-gray-700 flex items-center gap-1">
-                                                    <span class="material-symbols-outlined text-[16px]">edit_note</span>
-                                                    Catatan Rangkuman Belajar Murid
-                                                </span>
-                                                <span class="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
-                                                    Terkunci sampai {{ $endTimeStr }} WIB
-                                                </span>
-                                            </div>
-                                            <textarea rows="2" 
-                                                      disabled 
-                                                      placeholder="Formulir rangkuman dan tombol selesai akan otomatis aktif setelah sesi berakhir..." 
-                                                      class="w-full text-xs rounded-xl border-gray-300 bg-white/70 p-2.5 cursor-not-allowed"></textarea>
-                                            <div class="mt-2">
-                                                <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-300 text-gray-500 cursor-not-allowed flex items-center gap-1.5">
-                                                    <span class="material-symbols-outlined text-[16px]">lock_clock</span>
-                                                    <span>Tandai Selesai (Aktif Setelah {{ $endTimeStr }} WIB)</span>
-                                                </button>
-                                            </div>
+                                        <textarea rows="2" 
+                                                  disabled 
+                                                  placeholder="Formulir rangkuman dan tombol selesai akan otomatis aktif setelah sesi berakhir..." 
+                                                  class="w-full text-xs rounded-xl border-gray-300 bg-white/70 p-2.5 cursor-not-allowed"></textarea>
+                                        <div class="mt-2">
+                                            <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-300 text-gray-500 cursor-not-allowed flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-[16px]">lock_clock</span>
+                                                <span>Tandai Selesai (Aktif Otomatis Pukul {{ $endTimeStr }} WIB)</span>
+                                            </button>
                                         </div>
                                     </div>
-                                @else
-                                    <!-- Sesi Sudah Melewati Jadwal (Siap Ditandai Selesai) -->
+                                </div>
+
+                                <!-- 2. Kontainer Terbuka (Sesi Selesai / Waktu Telah Tiba) -->
+                                <div id="session-unlocked-{{ $ab->id }}" class="{{ ! $isEnded ? 'hidden' : '' }}">
                                     <form action="{{ route('teacher.bookings.complete', $ab) }}" method="POST" class="bg-surface-container-low p-4 rounded-xl space-y-3 border border-secondary-container">
                                         @csrf
                                         @method('PATCH')
@@ -383,7 +405,7 @@
                                             <span>Tandai Selesai & Simpan Catatan Belajar</span>
                                         </button>
                                     </form>
-                                @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>

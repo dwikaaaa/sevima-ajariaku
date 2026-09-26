@@ -220,6 +220,16 @@
                                         Pukul {{ $booking->schedule->start_time->format('H:i') }} - {{ $booking->schedule->end_time->format('H:i') }} WIB
                                     @endif
                                 </div>
+                                @if($booking->schedule && ($booking->isApproved() || $booking->isPending()))
+                                    <div class="mt-1">
+                                        <span class="realtime-schedule-pill text-[11px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                                              data-start-time="{{ $booking->schedule->start_time->toIso8601String() }}"
+                                              data-end-time="{{ $booking->schedule->end_time->toIso8601String() }}"
+                                              data-mode="compact">
+                                            <span class="realtime-text font-mono">Memuat...</span>
+                                        </span>
+                                    </div>
+                                @endif
                                 @if($booking->completed_at)
                                     <span class="text-[10px] text-outline mt-1">
                                         Diselesaikan: {{ $booking->completed_at->diffForHumans() }}

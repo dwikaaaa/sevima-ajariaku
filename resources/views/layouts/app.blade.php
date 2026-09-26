@@ -449,6 +449,127 @@
                 }
             }
         });
+
+        // ==========================================
+        // REAL-TIME SCHEDULE COUNTDOWN ENGINE
+        // ==========================================
+        window.SERVER_TIME_MS = {{ now()->getTimestampMs() }};
+        window.CLIENT_LOAD_TIME_MS = Date.now();
+
+        function getNowWIB() {
+            return new Date(window.SERVER_TIME_MS + (Date.now() - window.CLIENT_LOAD_TIME_MS));
+        }
+
+        function formatTimeDurationHuman(ms) {
+            if (ms <= 0) return '0 dtk';
+            const totalSeconds = Math.floor(ms / 1000);
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            if (days > 0) {
+                return `${days} hr ${hours} jam ${minutes} mnt`;
+            }
+            if (hours > 0) {
+                return `${hours} jam ${minutes} mnt ${seconds} dtk`;
+            }
+            if (minutes > 0) {
+                return `${minutes} mnt ${seconds} dtk`;
+            }
+            return `${seconds} dtk`;
+        }
+
+        function tickRealtimeSchedules() {
+            const now = getNowWIB();
+            const targets = document.querySelectorAll('.realtime-schedule-pill, .realtime-schedule-badge');
+
+            targets.forEach(el => {
+                const startStr = el.getAttribute('data-start-time');
+                const endStr = el.getAttribute('data-end-time');
+                const mode = el.getAttribute('data-mode') || 'default';
+                const bookingId = el.getAttribute('data-booking-id');
+
+                if (!startStr) return;
+
+                const startTime = new Date(startStr);
+                const endTime = endStr ? new Date(endStr) : null;
+                const textTarget = el.querySelector('.realtime-text') || el;
+
+                const msToStart = startTime.getTime() - now.getTime();
+                const msToEnd = endTime ? (endTime.getTime() - now.getTime()) : -1;
+
+                if (msToStart > 0) {
+                    // Sesi Belum Dimulai
+                    const countdownStr = formatTimeDurationHuman(msToStart);
+                    if (mode === 'hero') {
+                        el.className = 'realtime-schedule-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-900 border border-blue-200 transition-all shadow-xs';
+                        textTarget.innerHTML = `<span class="material-symbols-outlined text-[15px] text-blue-600 animate-pulse">schedule</span> Dimulai dlm: <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else if (mode === 'teacher') {
+                        textTarget.innerHTML = `Dimulai dalam ${countdownStr}`;
+                    } else if (mode === 'pending') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 inline-flex items-center gap-1';
+                        textTarget.innerHTML = `<span class="material-symbols-outlined text-[13px] text-blue-600">timer</span> Mulai dlm <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else if (mode === 'slot') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 inline-flex items-center gap-1';
+                        textTarget.innerHTML = `<span class="material-symbols-outlined text-[13px] text-blue-600">timer</span> Mulai dlm <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else if (mode === 'compact') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 inline-flex items-center gap-1';
+                        textTarget.innerHTML = `<span class="material-symbols-outlined text-[13px] text-blue-600">schedule</span> Mulai dlm <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else {
+                        textTarget.innerHTML = `Dimulai dlm ${countdownStr}`;
+                    }
+                } else if (endTime && msToEnd > 0) {
+                    // Sesi Sedang Berlangsung
+                    const countdownStr = formatTimeDurationHuman(msToEnd);
+                    if (mode === 'hero') {
+                        el.className = 'realtime-schedule-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-300 transition-all shadow-xs';
+                        textTarget.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-600 animate-ping"></span> Berlangsung • Selesai dlm: <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else if (mode === 'teacher') {
+                        textTarget.innerHTML = `Selesai dalam ${countdownStr}`;
+                    } else if (mode === 'slot') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 inline-flex items-center gap-1';
+                        textTarget.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Berlangsung • Selesai dlm <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else if (mode === 'compact' || mode === 'pending') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 inline-flex items-center gap-1';
+                        textTarget.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span> Selesai dlm <span class="tabular-nums font-mono">${countdownStr}</span>`;
+                    } else {
+                        textTarget.innerHTML = `Berlangsung • Selesai dlm ${countdownStr}`;
+                    }
+                } else {
+                    // Sesi Telah Selesai
+                    if (mode === 'hero') {
+                        el.className = 'realtime-schedule-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-900 border border-emerald-300 transition-all';
+                        textTarget.innerHTML = `<span class="material-symbols-outlined text-[15px] text-emerald-600">task_alt</span> Waktu Sesi Selesai`;
+                    } else if (mode === 'teacher') {
+                        textTarget.innerHTML = `Waktu Sesi Berakhir`;
+                    } else if (mode === 'slot') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2 py-0.5 rounded-md bg-surface-container-high text-outline inline-flex items-center gap-1';
+                        textTarget.innerHTML = `Jadwal telah lewat`;
+                    } else if (mode === 'compact' || mode === 'pending') {
+                        el.className = 'realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-surface-container-high text-outline inline-flex items-center gap-1';
+                        textTarget.innerHTML = `Waktu Selesai`;
+                    } else {
+                        textTarget.innerHTML = `Waktu Selesai`;
+                    }
+
+                    // Realtime unlock form guru tanpa refresh
+                    if (bookingId) {
+                        const lockedBox = document.getElementById(`session-locked-${bookingId}`);
+                        const unlockedBox = document.getElementById(`session-unlocked-${bookingId}`);
+                        if (lockedBox && unlockedBox && !lockedBox.classList.contains('hidden')) {
+                            lockedBox.classList.add('hidden');
+                            unlockedBox.classList.remove('hidden');
+                        }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            tickRealtimeSchedules();
+            setInterval(tickRealtimeSchedules, 1000);
+        });
     </script>
 
     @stack('scripts')

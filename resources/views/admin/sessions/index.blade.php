@@ -105,9 +105,19 @@
                                 <span class="font-semibold text-primary block">
                                     {{ $b->schedule->start_time->translatedFormat('d M Y') }}
                                 </span>
-                                <span class="text-on-surface-variant text-[11px]">
+                                <span class="text-on-surface-variant text-[11px] block">
                                     {{ $b->schedule->start_time->format('H:i') }} - {{ $b->schedule->end_time->format('H:i') }} WIB
                                 </span>
+                                @if($b->isApproved() || $b->isPending())
+                                    <div class="mt-1">
+                                        <span class="realtime-schedule-pill text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1"
+                                              data-start-time="{{ $b->schedule->start_time->toIso8601String() }}"
+                                              data-end-time="{{ $b->schedule->end_time->toIso8601String() }}"
+                                              data-mode="compact">
+                                            <span class="realtime-text font-mono">Memuat...</span>
+                                        </span>
+                                    </div>
+                                @endif
                             </td>
                             <td class="py-4 px-6">
                                 <div class="space-y-1">

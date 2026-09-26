@@ -61,7 +61,7 @@
                             {{ $nextSession->teacher->subject }} bersama {{ $nextSession->teacher->user->name }}
                         </h2>
 
-                        <div class="flex items-center gap-4 text-xs text-on-surface-variant font-medium">
+                        <div class="flex flex-wrap items-center gap-3 text-xs text-on-surface-variant font-medium">
                             <span class="flex items-center gap-1.5 text-primary font-bold">
                                 <span class="material-symbols-outlined text-[18px] text-secondary">calendar_today</span>
                                 {{ $nextSession->schedule->start_time->translatedFormat('l, d F Y') }}
@@ -69,6 +69,12 @@
                             <span class="flex items-center gap-1.5 text-primary font-bold">
                                 <span class="material-symbols-outlined text-[18px] text-secondary">schedule</span>
                                 {{ $nextSession->schedule->start_time->format('H:i') }} - {{ $nextSession->schedule->end_time->format('H:i') }} WIB
+                            </span>
+                            <span class="realtime-schedule-pill inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-900 border border-blue-200 transition-all shadow-xs"
+                                  data-start-time="{{ $nextSession->schedule->start_time->toIso8601String() }}"
+                                  data-end-time="{{ $nextSession->schedule->end_time->toIso8601String() }}"
+                                  data-mode="hero">
+                                <span class="realtime-text font-mono">Memuat waktu...</span>
                             </span>
                         </div>
 
@@ -114,7 +120,12 @@
                                 <span class="bg-secondary-container text-on-secondary-container text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                                     Disetujui
                                 </span>
-                                <span class="text-xs text-outline">{{ $extraSession->schedule->start_time->translatedFormat('d M Y') }}</span>
+                                <span class="realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 inline-flex items-center gap-1"
+                                      data-start-time="{{ $extraSession->schedule->start_time->toIso8601String() }}"
+                                      data-end-time="{{ $extraSession->schedule->end_time->toIso8601String() }}"
+                                      data-mode="compact">
+                                    <span class="realtime-text font-mono">Memuat...</span>
+                                </span>
                             </div>
                             <div>
                                 <h5 class="text-sm font-bold text-primary">{{ $extraSession->teacher->subject }}</h5>
@@ -199,7 +210,12 @@
                                         <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
                                             Menunggu Persetujuan
                                         </span>
-                                        <span class="text-xs text-outline">{{ $p->created_at->diffForHumans() }}</span>
+                                        <span class="realtime-schedule-pill text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 inline-flex items-center gap-1"
+                                              data-start-time="{{ $p->schedule->start_time->toIso8601String() }}"
+                                              data-end-time="{{ $p->schedule->end_time->toIso8601String() }}"
+                                              data-mode="pending">
+                                            <span class="realtime-text font-mono">Memuat...</span>
+                                        </span>
                                     </div>
                                     <h4 class="text-sm font-bold text-primary">{{ $p->teacher->subject }}</h4>
                                     <p class="text-xs text-on-surface-variant font-medium">Guru: {{ $p->teacher->user->name }} ({{ $p->teacher->origin_location }})</p>

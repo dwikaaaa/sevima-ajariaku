@@ -153,9 +153,17 @@
                                                 Tersedia
                                             </span>
                                         </div>
-                                        <div class="mt-2 flex items-center text-xs text-on-surface font-semibold">
-                                            <span class="material-symbols-outlined text-[16px] text-outline mr-1">schedule</span>
-                                            {{ $sch->start_time->format('H:i') }} - {{ $sch->end_time->format('H:i') }} WIB
+                                        <div class="mt-2 flex items-center justify-between flex-wrap gap-2 text-xs text-on-surface font-semibold">
+                                            <div class="flex items-center">
+                                                <span class="material-symbols-outlined text-[16px] text-outline mr-1">schedule</span>
+                                                {{ $sch->start_time->format('H:i') }} - {{ $sch->end_time->format('H:i') }} WIB
+                                            </div>
+                                            <span class="realtime-schedule-pill text-[11px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1"
+                                                  data-start-time="{{ $sch->start_time->toIso8601String() }}"
+                                                  data-end-time="{{ $sch->end_time->toIso8601String() }}"
+                                                  data-mode="slot">
+                                                <span class="realtime-text font-mono">Memuat...</span>
+                                            </span>
                                         </div>
                                     </div>
                                 </label>
