@@ -22,6 +22,7 @@ class EnsureUserHasRole
             return redirect()->route('login');
         }
 
+
         // Cek apakah role user saat ini ada dalam daftar role yang diperbolehkan
         if (! in_array($user->role, $roles, true)) {
             abort(403, 'Akses ditolak. Anda tidak memiliki hak akses untuk membuka halaman ini.');

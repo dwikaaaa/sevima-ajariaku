@@ -37,6 +37,10 @@ class AuthController extends Controller
 
             $user = Auth::user();
 
+            if ($user->isAdmin()) {
+                return redirect()->intended(route('admin.dashboard'));
+            }
+
             if ($user->isTeacher()) {
                 return redirect()->intended(route('teacher.dashboard'));
             }

@@ -121,6 +121,11 @@
                            class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('teacher.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
                             <span class="material-symbols-outlined text-[16px] mr-1">calendar_month</span> Kelola Jadwal & Murid
                         </a>
+                    @elseif(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" 
+                           class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('admin.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
+                            <span class="material-symbols-outlined text-[16px] mr-1">admin_panel_settings</span> Panel Admin 3T
+                        </a>
                     @endif
                 @endauth
             </nav>
@@ -182,6 +187,10 @@
                 @elseif(auth()->user()->isTeacher())
                     <a href="{{ route('teacher.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
                         Kelola Jadwal & Booking (Dashboard)
+                    </a>
+                @elseif(auth()->user()->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
+                        Panel Kendali Admin 3T
                     </a>
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="pt-2 border-t border-surface-container-high">

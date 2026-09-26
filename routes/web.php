@@ -66,3 +66,25 @@ Route::middleware(['auth', 'role:guru'])->prefix('teacher')->name('teacher.')->g
     Route::patch('/bookings/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
     Route::patch('/bookings/{booking}/complete', [BookingController::class, 'complete'])->name('bookings.complete');
 });
+
+// ==========================================
+// 5. ADMIN AREA (VERIFIKASI, USER MANAGEMENT, MONITORING 3T)
+// ==========================================
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    // 1. Dashboard Ringkasan & Impact Metrics
+    Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'index'])->name('dashboard');
+
+    // 2. Verifikasi Guru & Relawan
+    Route::get('/teachers', [\App\Http\Controllers\AdminTeacherController::class, 'index'])->name('teachers.index');
+    Route::get('/teachers/{teacher}', [\App\Http\Controllers\AdminTeacherController::class, 'show'])->name('teachers.show');
+    Route::patch('/teachers/{teacher}/approve', [\App\Http\Controllers\AdminTeacherController::class, 'approve'])->name('teachers.approve');
+    Route::patch('/teachers/{teacher}/reject', [\App\Http\Controllers\AdminTeacherController::class, 'reject'])->name('teachers.reject');
+
+    // 3. Manajemen Pengguna (User Management)
+    Route::get('/users', [\App\Http\Controllers\AdminUserController::class, 'index'])->name('users.index');
+    Route::delete('/users/{user}', [\App\Http\Controllers\AdminUserController::class, 'destroy'])->name('users.destroy');
+
+    // 4. Monitoring Sesi & Intervensi Darurat
+    Route::get('/sessions', [\App\Http\Controllers\AdminSessionController::class, 'index'])->name('sessions.index');
+    Route::patch('/sessions/{booking}/update-link', [\App\Http\Controllers\AdminSessionController::class, 'updateLink'])->name('sessions.update-link');
+});
