@@ -43,7 +43,8 @@ class AuthController extends Controller
             }
 
             if ($user->isTeacher()) {
-                return redirect()->intended(route('teacher.dashboard'));
+                session()->forget('url.intended');
+                return redirect()->route('teacher.dashboard');
             }
 
             if ($user->isStudent()) {

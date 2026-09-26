@@ -78,8 +78,20 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
             
             <!-- Brand Logo & Title -->
+            @php
+                $brandHomeUrl = route('home');
+                if (auth()->check()) {
+                    if (auth()->user()->isTeacher()) {
+                        $brandHomeUrl = route('teacher.dashboard');
+                    } elseif (auth()->user()->isAdmin()) {
+                        $brandHomeUrl = route('admin.dashboard');
+                    } elseif (auth()->user()->isStudent()) {
+                        $brandHomeUrl = route('student.dashboard');
+                    }
+                }
+            @endphp
             <div class="flex items-center gap-4">
-                <a href="{{ route('home') }}" class="flex items-center gap-3 group">
+                <a href="{{ $brandHomeUrl }}" class="flex items-center gap-3 group">
                     <div class="w-10 h-10 bg-primary-container rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform flex-shrink-0">
                         <svg class="w-6 h-6" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                             <path d="M12 32C17 29 21 29 24 31V16C21 14 17 14 12 16V32Z" fill="#E8F5E9"></path>
@@ -95,32 +107,29 @@
                 </a>
             </div>
 
-            <!-- Central Nav Links -->
-            <nav class="hidden md:flex items-center gap-1 bg-surface-container-low/70 p-1.5 rounded-full border border-surface-container-high">
-                <a href="{{ route('teachers.index') }}" 
-                   class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('teachers.*') || request()->routeIs('home') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
-                    <span class="material-symbols-outlined text-[16px] mr-1">search</span> Cari Guru
-                </a>
+            <!-- Central Nav Links (Hidden for Guru because default is already their dashboard) -->
+            @if(!auth()->check() || !auth()->user()->isTeacher())
+                <nav class="hidden md:flex items-center gap-1 bg-surface-container-low/70 p-1.5 rounded-full border border-surface-container-high">
+                    <a href="{{ route('teachers.index') }}" 
+                       class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('teachers.*') || request()->routeIs('home') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
+                        <span class="material-symbols-outlined text-[16px] mr-1">search</span> Cari Guru
+                    </a>
 
-                @auth
-                    @if(auth()->user()->isStudent())
-                        <a href="{{ route('student.dashboard') }}" 
-                           class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('student.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
-                            <span class="material-symbols-outlined text-[16px] mr-1">school</span> Ruang Belajarku
-                        </a>
-                    @elseif(auth()->user()->isTeacher())
-                        <a href="{{ route('teacher.dashboard') }}" 
-                           class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('teacher.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
-                            <span class="material-symbols-outlined text-[16px] mr-1">calendar_month</span> Kelola Jadwal & Murid
-                        </a>
-                    @elseif(auth()->user()->isAdmin())
-                        <a href="{{ route('admin.dashboard') }}" 
-                           class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('admin.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
-                            <span class="material-symbols-outlined text-[16px] mr-1">admin_panel_settings</span> Panel Admin 3T
-                        </a>
-                    @endif
-                @endauth
-            </nav>
+                    @auth
+                        @if(auth()->user()->isStudent())
+                            <a href="{{ route('student.dashboard') }}" 
+                               class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('student.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
+                                <span class="material-symbols-outlined text-[16px] mr-1">school</span> Ruang Belajarku
+                            </a>
+                        @elseif(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" 
+                               class="px-4 py-2 rounded-full text-xs font-bold transition-all {{ request()->routeIs('admin.*') ? 'bg-primary-container text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high' }}">
+                                <span class="material-symbols-outlined text-[16px] mr-1">admin_panel_settings</span> Panel Admin 3T
+                            </a>
+                        @endif
+                    @endauth
+                </nav>
+            @endif
 
             <!-- Right Action Items -->
             <div class="flex items-center gap-3">
@@ -229,9 +238,11 @@
 
         <!-- Mobile Drawer Navigation -->
         <div id="mobileMenu" class="hidden md:hidden border-t border-surface-container-high bg-white px-4 pt-3 pb-6 space-y-2">
-            <a href="{{ route('teachers.index') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
-                Cari Guru Relawan
-            </a>
+            @if(!auth()->check() || !auth()->user()->isTeacher())
+                <a href="{{ route('teachers.index') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
+                    Cari Guru Relawan
+                </a>
+            @endif
             @auth
                 <div class="p-3 bg-surface-container-low rounded-xl mb-2 flex items-center gap-3">
                     <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
@@ -256,10 +267,6 @@
                 @if(auth()->user()->isStudent())
                     <a href="{{ route('student.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
                         Ruang Belajarku (Dashboard)
-                    </a>
-                @elseif(auth()->user()->isTeacher())
-                    <a href="{{ route('teacher.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
-                        Kelola Jadwal & Booking (Dashboard)
                     </a>
                 @elseif(auth()->user()->isAdmin())
                     <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
@@ -375,7 +382,9 @@
                 <div>
                     <h3 class="font-bold text-xs uppercase tracking-wider text-surface-dim mb-3">Tautan Cepat</h3>
                     <ul class="space-y-2 text-xs text-surface-dim">
-                        <li><a href="{{ route('teachers.index') }}" class="hover:text-white transition-colors">Cari Guru Relawan</a></li>
+                        @if(!auth()->check() || !auth()->user()->isTeacher())
+                            <li><a href="{{ route('teachers.index') }}" class="hover:text-white transition-colors">Cari Guru Relawan</a></li>
+                        @endif
                         <li><a href="{{ route('register') }}" class="hover:text-white transition-colors">Gabung Sebagai Relawan</a></li>
                         <li><a href="{{ route('register') }}" class="hover:text-white transition-colors">Daftar Sebagai Siswa</a></li>
                     </ul>
