@@ -133,7 +133,7 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-surface-container-low text-outline font-bold border-b border-surface-container-high">
                     <tr>
-                        <th class="py-3.5 px-6">ID & Mapel</th>
+                        <th class="py-3.5 px-6">No & Mapel</th>
                         <th class="py-3.5 px-6">Guru Relawan</th>
                         <th class="py-3.5 px-6">Murid & Wilayah 3T</th>
                         <th class="py-3.5 px-6">Jadwal & Status</th>
@@ -144,7 +144,7 @@
                     @forelse($activeSessions as $ses)
                         <tr class="hover:bg-surface-container-low/40 transition-colors">
                             <td class="py-4 px-6">
-                                <span class="text-[10px] font-bold text-outline block">#{{ $ses->id }}</span>
+                                <span class="text-[10px] font-bold text-outline block">No. {{ $loop->iteration }}</span>
                                 <span class="font-extrabold text-primary text-sm">{{ $ses->teacher->subject }}</span>
                             </td>
                             <td class="py-4 px-6">

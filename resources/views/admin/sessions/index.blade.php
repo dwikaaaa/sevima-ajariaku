@@ -71,7 +71,7 @@
             <table class="w-full text-left text-xs">
                 <thead class="bg-surface-container-low text-outline font-bold border-b border-surface-container-high">
                     <tr>
-                        <th class="py-3.5 px-6">ID & Mapel</th>
+                        <th class="py-3.5 px-6">No & Mapel</th>
                         <th class="py-3.5 px-6">Murid (Daerah 3T)</th>
                         <th class="py-3.5 px-6">Guru Relawan</th>
                         <th class="py-3.5 px-6">Waktu Jadwal</th>
@@ -83,7 +83,7 @@
                     @forelse($bookings as $b)
                         <tr class="hover:bg-surface-container-low/30 transition-colors">
                             <td class="py-4 px-6">
-                                <span class="text-[10px] text-outline font-bold block">#{{ $b->id }}</span>
+                                <span class="text-[10px] text-outline font-bold block">No. {{ $loop->iteration }}</span>
                                 <span class="font-extrabold text-primary text-sm">{{ $b->teacher->subject }}</span>
                                 @if($b->notes)
                                     <span class="text-[11px] text-on-surface-variant line-clamp-1 italic mt-0.5" title="{{ $b->notes }}">
