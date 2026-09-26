@@ -305,22 +305,113 @@
                                         </span>
                                         
                                         <label class="flex items-center gap-1.5 text-xs text-on-surface cursor-pointer">
+                                            <input type="hidden" name="student_attendance" value="0">
                                             <input type="checkbox" name="student_attendance" value="1" checked class="rounded text-primary focus:ring-primary">
                                             <span>Murid Hadir dalam Sesi</span>
                                         </label>
                                     </div>
 
-                                    <textarea name="summary_notes" 
-                                              rows="2" 
-                                              placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan saran latihan mandiri..." 
-                                              class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5 bg-white" 
-                                              required></textarea>
+                                    <div>
+                                        <textarea name="summary_notes" 
+                                                  rows="2" 
+                                                  placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan saran latihan mandiri..." 
+                                                  class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5 bg-white" 
+                                                  required>{{ old('summary_notes') }}</textarea>
+                                        @error('summary_notes')
+                                            <p class="text-xs text-error font-bold mt-1">{{ $message }}</p>
+                                        @enderror
+                                    </div>
 
                                     <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1.5 shadow-sm">
                                         <span class="material-symbols-outlined text-[16px]">task_alt</span>
                                         <span>Tandai Selesai & Simpan Catatan Belajar</span>
                                     </button>
                                 </form>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        <!-- 4. RIWAYAT SESI BELAJAR YANG TELAH SELESAI -->
+        <section class="space-y-4 pt-4 border-t border-surface-container-high">
+            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                <span class="material-symbols-outlined text-secondary">verified</span>
+                <span>Riwayat Sesi Belajar yang Telah Selesai ({{ $completedBookings->count() }})</span>
+            </h3>
+
+            @if($completedBookings->isEmpty())
+                <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                    Belum ada riwayat sesi belajar yang diselesaikan.
+                </div>
+            @else
+                <div class="space-y-4">
+                    @foreach($completedBookings as $cb)
+                        <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-container-high pb-4">
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="bg-emerald-100 text-emerald-800 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[14px]">check_circle</span>
+                                            Selesai Belajar
+                                        </span>
+                                        @if($cb->student_attendance)
+                                            <span class="bg-secondary-container/50 text-on-secondary-container text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                                Murid Hadir
+                                            </span>
+                                        @else
+                                            <span class="bg-red-100 text-red-800 text-[11px] font-bold px-2 py-0.5 rounded-full">
+                                                Murid Tidak Hadir
+                                            </span>
+                                        @endif
+                                    </div>
+                                    <h4 class="text-base font-extrabold text-primary mt-1">
+                                        Murid: {{ $cb->student->name }} ({{ $cb->student->studentProfile->region_location ?? 'Pelosok' }})
+                                    </h4>
+                                    <p class="text-xs text-on-surface-variant font-medium">
+                                        Waktu Sesi: {{ $cb->schedule->start_time->translatedFormat('l, d F Y • H:i') }} - {{ $cb->schedule->end_time->format('H:i') }} WIB
+                                    </p>
+                                </div>
+
+                                <div class="text-right text-xs text-outline">
+                                    <span>Diselesaikan:</span>
+                                    <span class="font-bold text-on-surface block">
+                                        {{ $cb->completed_at ? $cb->completed_at->translatedFormat('d M Y, H:i') : '-' }} WIB
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Catatan Rangkuman Belajar yang Diberikan Guru -->
+                            <div class="p-4 bg-surface-container-low rounded-xl space-y-1">
+                                <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-secondary text-[16px]">summarize</span>
+                                    Rangkuman & Catatan Hasil Belajar:
+                                </span>
+                                <p class="text-xs text-on-surface leading-relaxed pl-5 whitespace-pre-line">
+                                    {{ $cb->summary_notes ?: 'Tidak ada catatan rangkuman.' }}
+                                </p>
+                            </div>
+
+                            <!-- Ulasan Murid (Jika Ada) -->
+                            @if($cb->review)
+                                <div class="p-4 bg-amber-50/70 border border-amber-200/80 rounded-xl space-y-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs font-bold text-amber-950 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-amber-500 text-[16px] material-symbols-fill">star</span>
+                                            Ulasan dari Murid:
+                                        </span>
+                                        <div class="flex items-center text-amber-500 text-xs font-extrabold">
+                                            @for($i = 1; $i <= 5; $i++)
+                                                <span class="material-symbols-outlined text-[16px] {{ $i <= $cb->review->rating ? 'material-symbols-fill text-amber-500' : 'text-gray-300' }}">star</span>
+                                            @endfor
+                                            <span class="ml-1 text-gray-700">({{ $cb->review->rating }}/5)</span>
+                                        </div>
+                                    </div>
+                                    @if($cb->review->comment)
+                                        <p class="text-xs text-gray-700 italic pl-5 mt-1">"{{ $cb->review->comment }}"</p>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     @endforeach

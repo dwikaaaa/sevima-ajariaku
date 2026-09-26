@@ -239,6 +239,27 @@
             </div>
         @endif
 
+        @if ($errors->any())
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                <div class="p-4 bg-error-container/60 border border-error text-error rounded-xl space-y-1 shadow-sm">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 font-bold text-sm">
+                            <span class="material-symbols-outlined text-error text-[20px]">warning</span>
+                            <span>Terdapat kendala pada isian formulir:</span>
+                        </div>
+                        <button onclick="this.parentElement.parentElement.remove()" class="text-error hover:opacity-75">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                    </div>
+                    <ul class="list-disc list-inside text-xs pl-6 space-y-0.5">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+
         @if (session('info'))
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
                 <div class="p-4 bg-surface-container-high border border-outline-variant text-on-surface rounded-xl flex items-center justify-between gap-3 shadow-sm">

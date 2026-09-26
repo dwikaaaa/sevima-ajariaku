@@ -153,14 +153,16 @@ class BookingController extends Controller
         }
 
         $validated = $request->validate([
-            'summary_notes'      => ['required', 'string', 'min:10', 'max:2000'],
-            'student_attendance' => ['required', 'boolean'],
+            'summary_notes' => ['required', 'string', 'min:3', 'max:2000'],
+        ], [
+            'summary_notes.required' => 'Catatan rangkuman hasil belajar murid wajib diisi.',
+            'summary_notes.min'      => 'Catatan rangkuman minimal berisi 3 karakter.',
         ]);
 
         $booking->update([
             'status'             => 'completed',
             'summary_notes'      => $validated['summary_notes'],
-            'student_attendance' => $validated['student_attendance'],
+            'student_attendance' => $request->boolean('student_attendance', true),
             'completed_at'       => now(),
         ]);
 
