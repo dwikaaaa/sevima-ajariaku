@@ -88,6 +88,18 @@ class Booking extends Model
     }
 
     /**
+     * Cek apakah waktu sesi mengajar telah melewati jadwal berakhir (end_time).
+     */
+    public function isScheduleEnded(): bool
+    {
+        if (! $this->schedule || ! $this->schedule->end_time) {
+            return true;
+        }
+
+        return now()->greaterThanOrEqualTo($this->schedule->end_time);
+    }
+
+    /**
      * Cek apakah sesi ini sudah selesai dan siap diberi ulasan oleh murid.
      */
     public function canBeReviewed(): bool

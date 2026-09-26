@@ -245,33 +245,83 @@
                                 </div>
                             </div>
 
-                            <!-- Form Selesaikan Sesi & Tulis Summary Notes -->
-                            <form action="{{ route('teacher.bookings.complete', $ab) }}" method="POST" class="bg-surface-container-low p-4 rounded-xl space-y-3">
-                                @csrf
-                                @method('PATCH')
-                                <div class="flex items-center justify-between flex-wrap gap-2">
-                                    <span class="text-xs font-bold text-primary flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
-                                        Tulis Catatan Rangkuman Belajar Murid (Setelah Sesi Selesai)
-                                    </span>
-                                    
-                                    <label class="flex items-center gap-1.5 text-xs text-on-surface cursor-pointer">
-                                        <input type="checkbox" name="student_attendance" value="1" checked class="rounded text-primary focus:ring-primary">
-                                        <span>Murid Hadir dalam Sesi</span>
-                                    </label>
+                            @php
+                                $isEnded = $ab->isScheduleEnded();
+                                $endTimeStr = $ab->schedule?->end_time ? $ab->schedule->end_time->format('H:i') : '-';
+                            @endphp
+
+                            <!-- Status Sesi & Form Selesaikan Sesi -->
+                            @if(! $isEnded)
+                                <!-- Sesi Masih Berlangsung / Belum Melewati Waktu Jadwal -->
+                                <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3">
+                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                        <div class="flex items-start gap-2.5">
+                                            <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">timer</span>
+                                            <div>
+                                                <h5 class="text-xs font-bold text-amber-950">Sesi Belajar Sedang Berlangsung</h5>
+                                                <p class="text-[11px] text-amber-800 mt-0.5">
+                                                    Sesuai ketentuan, Anda hanya dapat menandai sesi ini selesai setelah waktu jadwal berakhir pada pukul <strong class="text-amber-950">{{ $endTimeStr }} WIB</strong>.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 self-start sm:self-auto flex-shrink-0">
+                                            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+                                            Selesai dalam {{ now()->diffForHumans($ab->schedule->end_time, true) }}
+                                        </span>
+                                    </div>
+
+                                    <!-- Form Disabled State -->
+                                    <div class="opacity-60 pointer-events-none filter grayscale-[30%] pt-2 border-t border-amber-200/60">
+                                        <div class="flex items-center justify-between gap-2 mb-2">
+                                            <span class="text-xs font-bold text-gray-700 flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-[16px]">edit_note</span>
+                                                Catatan Rangkuman Belajar Murid
+                                            </span>
+                                            <span class="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                                                Terkunci sampai {{ $endTimeStr }} WIB
+                                            </span>
+                                        </div>
+                                        <textarea rows="2" 
+                                                  disabled 
+                                                  placeholder="Formulir rangkuman dan tombol selesai akan otomatis aktif setelah sesi berakhir..." 
+                                                  class="w-full text-xs rounded-xl border-gray-300 bg-white/70 p-2.5 cursor-not-allowed"></textarea>
+                                        <div class="mt-2">
+                                            <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-300 text-gray-500 cursor-not-allowed flex items-center gap-1.5">
+                                                <span class="material-symbols-outlined text-[16px]">lock_clock</span>
+                                                <span>Tandai Selesai (Aktif Setelah {{ $endTimeStr }} WIB)</span>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+                            @else
+                                <!-- Sesi Sudah Melewati Jadwal (Siap Ditandai Selesai) -->
+                                <form action="{{ route('teacher.bookings.complete', $ab) }}" method="POST" class="bg-surface-container-low p-4 rounded-xl space-y-3 border border-secondary-container">
+                                    @csrf
+                                    @method('PATCH')
+                                    <div class="flex items-center justify-between flex-wrap gap-2">
+                                        <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
+                                            Tulis Catatan Rangkuman Belajar Murid (Sesi Selesai Pukul {{ $endTimeStr }} WIB)
+                                        </span>
+                                        
+                                        <label class="flex items-center gap-1.5 text-xs text-on-surface cursor-pointer">
+                                            <input type="checkbox" name="student_attendance" value="1" checked class="rounded text-primary focus:ring-primary">
+                                            <span>Murid Hadir dalam Sesi</span>
+                                        </label>
+                                    </div>
 
-                                <textarea name="summary_notes" 
-                                          rows="2" 
-                                          placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan PR / saran latihan mandiri..." 
-                                          class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5" 
-                                          required></textarea>
+                                    <textarea name="summary_notes" 
+                                              rows="2" 
+                                              placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan saran latihan mandiri..." 
+                                              class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5 bg-white" 
+                                              required></textarea>
 
-                                <button type="submit" class="px-5 py-2 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1.5">
-                                    <span class="material-symbols-outlined text-[16px]">task_alt</span>
-                                    <span>Tandai Selesai & Simpan Catatan</span>
-                                </button>
-                            </form>
+                                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1.5 shadow-sm">
+                                        <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                                        <span>Tandai Selesai & Simpan Catatan Belajar</span>
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     @endforeach
                 </div>

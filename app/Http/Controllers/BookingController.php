@@ -146,6 +146,12 @@ class BookingController extends Controller
             abort(403, 'Anda tidak memiliki hak untuk menyelesaikan sesi belajar ini.');
         }
 
+        // Validasi waktu: Guru hanya bisa menandai sesi selesai setelah waktu jadwal berakhir
+        if (! $booking->isScheduleEnded()) {
+            $endTimeFormatted = $booking->schedule?->end_time ? $booking->schedule->end_time->translatedFormat('H:i') : '-';
+            return back()->with('error', "Sesi pembelajaran belum dapat ditandai selesai. Anda baru dapat menyelesaikannya setelah jadwal berakhir pada pukul {$endTimeFormatted} WIB.");
+        }
+
         $validated = $request->validate([
             'summary_notes'      => ['required', 'string', 'min:10', 'max:2000'],
             'student_attendance' => ['required', 'boolean'],
