@@ -36,6 +36,12 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
+// Halaman Manajemen Profil Pribadi (Siswa, Guru, Admin)
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+});
+
 // ==========================================
 // 3. STUDENT JOURNEY (MURID DAERAH TERPENCIL)
 // ==========================================

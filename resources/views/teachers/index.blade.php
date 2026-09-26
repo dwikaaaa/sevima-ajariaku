@@ -5,25 +5,6 @@
 @section('content')
 <div class="flex flex-col w-full">
 
-    <!-- Status & Mode Hemat Data Strip -->
-    <div class="w-full bg-surface-container-low py-2.5 px-4 sm:px-8 border-b border-surface-container-high">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-on-surface-variant text-xs font-semibold">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-secondary animate-pulse"></span>
-                <span class="font-bold text-primary">Jaringan Terdeteksi Stabil (Hemat Data Aktif)</span>
-                <span class="hidden sm:inline text-outline">• Akses optimal tanpa beban kuota video berat</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <span class="flex items-center gap-1 text-primary">
-                    <span class="material-symbols-outlined text-[15px]">schedule</span> {{ now()->format('H:i') }} WIB
-                </span>
-                <span class="flex items-center gap-1 text-secondary font-bold">
-                    <span class="material-symbols-outlined text-[15px]">verified</span> {{ $teachers->total() }} Guru Siap Mengajar
-                </span>
-            </div>
-        </div>
-    </div>
-
     <!-- Hero & Search Section -->
     <section class="w-full bg-white px-4 sm:px-8 pt-8 pb-10 border-b border-surface-container-high">
         <div class="max-w-7xl mx-auto flex flex-col gap-6">

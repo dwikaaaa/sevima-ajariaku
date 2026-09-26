@@ -93,14 +93,6 @@
                         <span class="text-[11px] font-semibold text-on-surface-variant">Mentoring Pelosok Nusantara</span>
                     </div>
                 </a>
-
-                <!-- Role Status Indicator (Jalur Sisi Pengguna) -->
-                @auth
-                    <div class="hidden xl:flex items-center bg-surface-container-low px-3 py-1 rounded-full text-xs font-semibold text-primary">
-                        <span class="w-2 h-2 rounded-full mr-2 {{ auth()->user()->isTeacher() ? 'bg-secondary' : 'bg-primary-container' }}"></span>
-                        Peran: {{ auth()->user()->isTeacher() ? 'Guru Relawan' : (auth()->user()->isStudent() ? 'Murid / Siswa' : 'Administrator') }}
-                    </div>
-                @endauth
             </div>
 
             <!-- Central Nav Links -->
@@ -132,12 +124,6 @@
 
             <!-- Right Action Items -->
             <div class="flex items-center gap-3">
-                <!-- Mode Hemat Kuota Indicator -->
-                <div class="hidden sm:flex items-center gap-1.5 bg-secondary-container/40 text-on-secondary-container px-3 py-1.5 rounded-full text-xs font-bold border border-secondary-container">
-                    <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
-                    <span class="material-symbols-outlined text-[15px]">network_check</span>
-                    <span>Mode Hemat Kuota</span>
-                </div>
 
                 @guest
                     <div class="flex items-center gap-2">
@@ -149,21 +135,76 @@
                         </a>
                     </div>
                 @else
-                    <!-- Authenticated User Menu -->
-                    <div class="relative flex items-center gap-3" id="userMenuWrapper">
-                        <div class="text-right hidden sm:block">
-                            <span class="block text-xs font-bold text-on-surface leading-tight">{{ auth()->user()->name }}</span>
-                            <span class="block text-[11px] text-on-surface-variant capitalize">{{ auth()->user()->role }}</span>
+                    <!-- Authenticated User Menu Toggle & Modal -->
+                    <div class="relative" id="userMenuWrapper">
+                        <button type="button" 
+                                id="profileMenuToggle" 
+                                onclick="toggleProfileModal(event)"
+                                class="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-surface-container-low transition-all border border-transparent hover:border-surface-container-high focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer">
+                            <div class="text-right hidden sm:block pl-1">
+                                <span class="block text-xs font-bold text-on-surface leading-tight">{{ auth()->user()->name }}</span>
+                                <span class="block text-[11px] text-on-surface-variant capitalize">{{ auth()->user()->isTeacher() ? 'Guru Relawan' : (auth()->user()->isStudent() ? 'Murid' : 'Admin') }}</span>
+                            </div>
+                            <div class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-surface-container-high shrink-0">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <span class="material-symbols-outlined text-[18px] text-on-surface-variant hidden sm:inline transition-transform duration-200" id="profileChevron">expand_more</span>
+                        </button>
+
+                        <!-- Profile Modal Dropdown -->
+                        <div id="profileModal" 
+                             class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl shadow-xl border border-surface-container-high p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+                            
+                            <!-- 1. Username & Role -->
+                            <div class="p-3 bg-surface-container-low rounded-2xl flex items-center gap-3 mb-3 border border-surface-container-high/60">
+                                <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-extrabold text-base shadow-sm shrink-0">
+                                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <span class="block text-sm font-extrabold text-primary truncate leading-tight">{{ auth()->user()->name }}</span>
+                                    <span class="block text-[11px] text-on-surface-variant truncate mt-0.5">{{ auth()->user()->email }}</span>
+                                    <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold {{ auth()->user()->isTeacher() ? 'bg-secondary-container text-on-secondary-container' : (auth()->user()->isStudent() ? 'bg-tertiary-fixed text-on-tertiary-fixed' : 'bg-primary-container text-on-primary') }}">
+                                        <span class="w-1.5 h-1.5 rounded-full {{ auth()->user()->isTeacher() ? 'bg-secondary' : 'bg-primary' }}"></span>
+                                        {{ auth()->user()->isTeacher() ? 'Guru Relawan' : (auth()->user()->isStudent() ? 'Murid / Siswa' : 'Administrator') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Menu Items -->
+                            <div class="space-y-1.5 border-t border-surface-container-high pt-2">
+                                
+                                <!-- 2. Tombol Navigasi ke Halaman Edit Profil -->
+                                <a href="{{ route('profile.edit') }}" 
+                                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-primary hover:bg-surface-container-low transition-colors group">
+                                    <div class="w-8 h-8 rounded-lg bg-surface-container-high/60 flex items-center justify-center group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+                                        <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span>Edit Profil Pribadi</span>
+                                        <span class="text-[10px] text-on-surface-variant font-normal">Perbarui data diri &amp; akun</span>
+                                    </div>
+                                </a>
+
+                                <!-- 3. Tombol Logout -->
+                                <div class="pt-1 border-t border-surface-container-high">
+                                    <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                        @csrf
+                                        <button type="submit" 
+                                                class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-error hover:bg-error/10 transition-colors group">
+                                            <div class="w-8 h-8 rounded-lg bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-white transition-colors">
+                                                <span class="material-symbols-outlined text-[18px]">logout</span>
+                                            </div>
+                                            <div class="flex flex-col text-left">
+                                                <span>Keluar Akun</span>
+                                                <span class="text-[10px] text-error/80 font-normal">Akhiri sesi di perangkat ini</span>
+                                            </div>
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+
                         </div>
-                        <div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-surface-container-high">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}" class="inline">
-                            @csrf
-                            <button type="submit" title="Keluar Akun" class="p-2 text-outline hover:text-error rounded-full hover:bg-surface-container-low transition-colors">
-                                <span class="material-symbols-outlined text-[20px]">logout</span>
-                            </button>
-                        </form>
                     </div>
                 @endguest
 
@@ -180,6 +221,21 @@
                 Cari Guru Relawan
             </a>
             @auth
+                <div class="p-3 bg-surface-container-low rounded-xl mb-2 flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <span class="block text-xs font-bold text-primary truncate">{{ auth()->user()->name }}</span>
+                        <span class="block text-[10px] text-on-surface-variant capitalize">{{ auth()->user()->isTeacher() ? 'Guru Relawan' : (auth()->user()->isStudent() ? 'Murid / Siswa' : 'Administrator') }}</span>
+                    </div>
+                </div>
+
+                <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                    <span>Edit Profil Pribadi</span>
+                </a>
+
                 @if(auth()->user()->isStudent())
                     <a href="{{ route('student.dashboard') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low">
                         Ruang Belajarku (Dashboard)
@@ -195,8 +251,9 @@
                 @endif
                 <form method="POST" action="{{ route('logout') }}" class="pt-2 border-t border-surface-container-high">
                     @csrf
-                    <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-error hover:bg-error-container/30">
-                        Keluar Akun (Logout)
+                    <button type="submit" class="w-full text-left px-3 py-2 rounded-lg text-sm font-semibold text-error hover:bg-error-container/30 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">logout</span>
+                        <span>Keluar Akun (Logout)</span>
                     </button>
                 </form>
             @else
@@ -329,7 +386,7 @@
         </div>
     </footer>
 
-    <!-- Mobile Drawer Script Toggle -->
+    <!-- Mobile Drawer & Profile Modal Script Toggle -->
     <script>
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const mobileMenu = document.getElementById('mobileMenu');
@@ -338,6 +395,43 @@
                 mobileMenu.classList.toggle('hidden');
             });
         }
+
+        function toggleProfileModal(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('profileModal');
+            const chevron = document.getElementById('profileChevron');
+            if (modal) {
+                modal.classList.toggle('hidden');
+                if (chevron) {
+                    chevron.classList.toggle('rotate-180');
+                }
+            }
+        }
+
+        // Tutup modal profil saat klik di luar area
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('profileModal');
+            const toggle = document.getElementById('profileMenuToggle');
+            const chevron = document.getElementById('profileChevron');
+            if (modal && !modal.classList.contains('hidden')) {
+                if (!modal.contains(event.target) && !toggle.contains(event.target)) {
+                    modal.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // Tutup modal profil saat tombol Escape ditekan
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('profileModal');
+                const chevron = document.getElementById('profileChevron');
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
     </script>
 
     @stack('scripts')
