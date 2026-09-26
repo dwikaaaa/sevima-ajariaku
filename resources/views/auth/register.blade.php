@@ -132,7 +132,24 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-primary mb-1">Bio Singkat Relawan</label>
-                    <textarea name="bio" rows="2" class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-3" placeholder="Ceritakan pengalaman dan motivasi Anda mengajar adik-adik pelosok..."></textarea>
+                    <textarea name="bio" rows="2" class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-3" placeholder="Ceritakan pengalaman dan motivasi Anda mengajar adik-adik pelosok...">{{ old('bio') }}</textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-primary mb-1 flex items-center justify-between">
+                        <span>Tautan Portofolio / CV Relawan <span class="text-error">*</span></span>
+                        <span class="text-[10px] text-on-surface-variant font-normal">Google Drive, LinkedIn, Web, dll.</span>
+                    </label>
+                    <input type="url" 
+                           name="cv_path" 
+                           value="{{ old('cv_path') }}" 
+                           class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-3" 
+                           placeholder="https://drive.google.com/... atau https://linkedin.com/in/...">
+                    @error('cv_path')
+                        <p class="text-[11px] text-error font-semibold mt-1">{{ $message }}</p>
+                    @enderror
+                    <p class="text-[10px] text-outline mt-1">
+                        Tautan ini digunakan oleh admin untuk memeriksa kredensial dan memverifikasi akun Anda.
+                    </p>
                 </div>
             </div>
 

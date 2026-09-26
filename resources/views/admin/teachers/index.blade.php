@@ -95,7 +95,13 @@
                             </td>
                             <td class="py-4 px-6">
                                 <span class="font-semibold text-on-surface block">{{ $t->institution_origin ?? 'Relawan Mandiri' }}</span>
-                                <span class="text-on-surface-variant text-[11px]">📍 {{ $t->origin_location }}</span>
+                                <span class="text-on-surface-variant text-[11px] block">📍 {{ $t->origin_location }}</span>
+                                @if($t->cv_path)
+                                    <a href="{{ $t->cv_path }}" target="_blank" class="inline-flex items-center gap-1 text-[11px] text-secondary hover:underline font-semibold mt-0.5">
+                                        <span class="material-symbols-outlined text-[13px]">link</span>
+                                        <span>Lihat Portofolio</span>
+                                    </a>
+                                @endif
                             </td>
                             <td class="py-4 px-6">
                                 @if($t->verification_status === 'approved')

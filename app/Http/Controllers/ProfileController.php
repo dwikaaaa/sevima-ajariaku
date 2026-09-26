@@ -46,6 +46,7 @@ class ProfileController extends Controller
             $rules['origin_location']    = ['required', 'string', 'max:255'];
             $rules['institution_origin'] = ['nullable', 'string', 'max:255'];
             $rules['bio']                = ['nullable', 'string', 'max:1000'];
+            $rules['cv_path']            = ['nullable', 'url', 'max:500'];
         }
 
         $validated = $request->validate($rules);
@@ -82,6 +83,7 @@ class ProfileController extends Controller
                     'origin_location'    => $validated['origin_location'],
                     'institution_origin' => $validated['institution_origin'] ?? null,
                     'bio'                => $validated['bio'] ?? null,
+                    'cv_path'            => $validated['cv_path'] ?? null,
                 ]
             );
         }

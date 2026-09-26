@@ -96,6 +96,56 @@
             </div>
         </div>
 
+        <!-- Tinjauan Berkas Portofolio / CV Relawan -->
+        <div class="bg-surface-container-low/70 border border-surface-container-high rounded-2xl p-5 sm:p-6 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold shadow-xs">
+                        <span class="material-symbols-outlined text-[22px]">description</span>
+                    </div>
+                    <div>
+                        <span class="text-sm font-extrabold text-primary block">Tautan Portofolio / CV Relawan</span>
+                        <span class="text-xs text-on-surface-variant">Dokumen bukti kelayakan dan rekam jejak calon guru relawan</span>
+                    </div>
+                </div>
+
+                @if($teacher->cv_path)
+                    <a href="{{ $teacher->cv_path }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-sm transition-all self-start sm:self-auto">
+                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                        <span>Buka Tautan Portofolio / CV</span>
+                    </a>
+                @else
+                    <span class="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-surface-container-high text-outline inline-flex items-center gap-1.5 self-start sm:self-auto">
+                        <span class="material-symbols-outlined text-[16px]">link_off</span>
+                        <span>Belum Mengisi Tautan Portofolio</span>
+                    </span>
+                @endif
+            </div>
+
+            @if($teacher->cv_path)
+                <div class="bg-white p-3.5 rounded-xl border border-surface-container-high flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <span class="material-symbols-outlined text-[18px] text-secondary shrink-0">link</span>
+                        <span class="font-mono text-xs truncate text-primary font-bold select-all">{{ $teacher->cv_path }}</span>
+                    </div>
+                    <a href="{{ $teacher->cv_path }}" 
+                       target="_blank" 
+                       rel="noopener noreferrer" 
+                       class="text-secondary hover:underline font-bold text-xs shrink-0 flex items-center gap-1 self-end sm:self-auto">
+                        <span>Buka Dokumen</span>
+                        <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                    </a>
+                </div>
+            @else
+                <p class="text-xs text-amber-800 bg-amber-50 border border-amber-200 p-3 rounded-xl">
+                    ⚠️ Pengajar ini belum mencantumkan tautan portofolio/CV. Harap hubungi yang bersangkutan sebelum menyetujui verifikasi.
+                </p>
+            @endif
+        </div>
+
         <!-- Formulir Penolakan Jika Berkas Tidak Memenuhi Syarat -->
         @if($teacher->verification_status !== 'rejected')
             <div class="pt-6 border-t border-surface-container-high">

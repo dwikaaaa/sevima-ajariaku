@@ -116,6 +116,7 @@ class DummyUserSeeder extends Seeder
                     'origin_location' => $t['origin_location'],
                     'institution_origin' => $t['institution_origin'],
                     'bio' => $t['bio'],
+                    'cv_path' => $t['cv_path'] ?? 'https://drive.google.com/file/d/dummy-cv-relawan-' . $user->id . '/view',
                     'rating' => $t['rating'],
                     'total_reviews' => $t['total_reviews'],
                     'verification_status' => 'approved',

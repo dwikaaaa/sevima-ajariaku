@@ -88,6 +88,7 @@ class AuthController extends Controller
             'subject'            => ['required_if:role,guru', 'nullable', 'string', 'max:255'],
             'institution_origin' => ['nullable', 'string', 'max:255'],
             'bio'                => ['nullable', 'string', 'max:1000'],
+            'cv_path'            => ['required_if:role,guru', 'nullable', 'url', 'max:500'],
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -113,6 +114,7 @@ class AuthController extends Controller
                     'origin_location'    => $validated['region_location'],
                     'institution_origin' => $validated['institution_origin'] ?? null,
                     'bio'                => $validated['bio'] ?? null,
+                    'cv_path'            => $validated['cv_path'] ?? null,
                     'rating'             => 0.00,
                     'total_reviews'      => 0,
                     'is_verified'        => false, // Menunggu verifikasi admin

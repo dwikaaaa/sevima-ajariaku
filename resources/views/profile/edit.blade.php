@@ -249,6 +249,29 @@
                             <p class="text-[11px] text-error font-semibold mt-1">{{ $message }}</p>
                         @enderror
                     </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-primary mb-1.5 flex items-center justify-between">
+                            <span>Tautan Portofolio / CV Mengajar</span>
+                            <span class="text-[10px] text-on-surface-variant font-normal">Google Drive, LinkedIn, Portfolio Web</span>
+                        </label>
+                        <input type="url" 
+                               name="cv_path" 
+                               value="{{ old('cv_path', $tp->cv_path ?? '') }}" 
+                               placeholder="https://drive.google.com/... atau https://linkedin.com/in/..." 
+                               class="w-full text-xs rounded-xl border-surface-container-high focus:border-secondary focus:ring-secondary py-2.5 px-3">
+                        @error('cv_path')
+                            <p class="text-[11px] text-error font-semibold mt-1">{{ $message }}</p>
+                        @enderror
+                        @if(!empty($tp->cv_path))
+                            <p class="text-[11px] mt-1 text-secondary font-semibold">
+                                <a href="{{ $tp->cv_path }}" target="_blank" class="hover:underline inline-flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[13px]">open_in_new</span>
+                                    <span>Buka tautan saat ini di tab baru</span>
+                                </a>
+                            </p>
+                        @endif
+                    </div>
                 </div>
             @endif
 
