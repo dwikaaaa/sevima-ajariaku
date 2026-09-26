@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Masuk - Ajari Aku | Jembatan Pendidikan Pelosok</title>
+<!-- Tailwind CSS CDN with forms & container-queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              DEFAULT: '#123F36',
+              dark: '#0B2822',
+              hover: '#0E332C',
+              mint: '#E9FEF8',
+              sage: '#D1EBE3',
+              accent: '#A3E4D7',
+              gold: '#F4D03F',
+              muted: '#4A7C72'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Styles for Decorative Glows & Shadows -->
+<style data-purpose="custom-decorations">
+    /* Subtle radial background glow mirroring reference image */
+    .bg-forest-gradient {
+      background: radial-gradient(circle at 75% 25%, #19584b 0%, #123F36 50%, #0d2e27 100%);
+    }
+
+    /* Soft realistic shadow for the floating feature card */
+    .shadow-feature-card {
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.25), 0 0 1px 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Floating miniature card angle and glass effect */
+    .card-perspective {
+      transform: perspective(1000px) rotateY(-8deg) rotateX(6deg) rotateZ(3deg);
+      box-shadow: -12px 18px 30px rgba(7, 24, 21, 0.45);
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 antialiased min-h-screen flex items-center justify-center p-0 md:p-6 lg:p-10">
+<!-- BEGIN: MainContainer -->
+<!-- Outer viewport wrapper matching modern desktop 1440px canvas proportions -->
+<main class="w-full max-w-[1360px] min-h-[820px] bg-white rounded-none md:rounded-3xl shadow-2xl overflow-hidden flex flex-col lg:flex-row">
+<!-- BEGIN: LeftAuthenticationSection -->
+<!-- Form and login options section -->
+<section class="w-full lg:w-[48%] xl:w-[46%] bg-white px-8 sm:px-14 xl:px-18 py-10 lg:py-14 flex flex-col justify-between" data-purpose="auth-form-column">
+<div>
+<!-- Brand Header Logo -->
+<header class="flex items-center gap-3 mb-10 lg:mb-12">
+<!-- Logo Icon Mark (Ajari Aku) -->
+<div class="w-11 h-11 bg-brand rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
+<svg class="w-7 h-7" fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<!-- Book Leaves -->
+<path d="M12 32C17 29 21 29 24 31V16C21 14 17 14 12 16V32Z" fill="#E8F5E9"></path>
+<path d="M36 32C31 29 27 29 24 31V16C27 14 31 14 36 16V32Z" fill="#A3E4D7"></path>
+<!-- Inspiration Sun/Spark -->
+<circle cx="24" cy="11" fill="#F4D03F" r="3.2"></circle>
+<path d="M24 18V29" stroke="#123F36" stroke-linecap="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="flex flex-col">
+<span class="font-extrabold text-2xl tracking-tight text-brand leading-none">Ajari Aku</span>
+<span class="text-[11px] font-semibold tracking-wider text-brand-muted uppercase mt-0.5">Jembatan Pendidikan Pelosok</span>
+</div>
+</header>
+<!-- Main Title and Switcher -->
+<div class="mb-7">
+<h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight">Sign in</h1>
+<p class="text-sm sm:text-[15px] text-gray-500 mt-2 font-medium">
+            Belum punya akun? 
+            <a class="text-brand font-bold underline underline-offset-4 hover:text-brand-hover transition-colors" href="#">Daftar sekarang</a>
+</p>
+</div>
+<!-- Role Selector Switch (Siswa vs Guru Relawan) -->
+<div class="mb-6 p-1 bg-gray-100 rounded-xl flex gap-1 border border-gray-200" data-purpose="role-toggle">
+<button class="w-1/2 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-white text-brand shadow-sm" type="button">
+            Siswa / Pelajar 3T
+          </button>
+<button class="w-1/2 py-2 text-xs sm:text-sm font-semibold rounded-lg text-gray-600 hover:text-gray-900 transition-colors" type="button">
+            Guru Relawan
+          </button>
+</div>
+<!-- Form Elements -->
+<form action="#" class="space-y-4" method="POST" onsubmit="event.preventDefault()">
+<!-- Email / WhatsApp Input -->
+<div>
+<label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5" for="identifier">
+              E-mail atau No. WhatsApp
+            </label>
+<input class="w-full px-4 py-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 text-gray-800 placeholder-gray-400 text-sm transition-all outline-none" id="identifier" name="identifier" placeholder="contoh@gmail.com atau 0812xxxx" type="text"/>
+</div>
+<!-- Password Input with Toggle -->
+<div>
+<label class="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-1.5" for="password">
+              Kata Sandi
+            </label>
+<div class="relative">
+<input class="w-full pl-4 pr-11 py-3 rounded-xl border border-gray-300 focus:border-brand focus:ring-2 focus:ring-brand/20 text-gray-800 placeholder-gray-400 text-sm transition-all outline-none" id="password" name="password" placeholder="@#*%" type="password"/>
+<!-- Eye Icon Button -->
+<button aria-label="Tampilkan kata sandi" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-brand transition-colors p-1" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Options Row: Remember Me & Forgot Password -->
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center cursor-pointer select-none text-sm text-gray-600">
+<input class="w-4 h-4 rounded border-gray-300 text-brand focus:ring-brand/30 transition" type="checkbox"/>
+<span class="ml-2 font-medium">Ingat saya</span>
+</label>
+<a class="text-sm font-bold text-brand hover:underline underline-offset-2" href="#">Lupa Kata Sandi?</a>
+</div>
+<!-- Primary Submit CTA -->
+<div class="pt-2">
+<button class="w-full py-3.5 px-4 bg-brand hover:bg-brand-hover active:scale-[0.99] text-white font-bold rounded-xl text-base shadow-lg shadow-brand/20 transition-all flex items-center justify-center tracking-wide" type="submit">
+              Sign in
+            </button>
+</div>
+</form>
+<!-- Divider with Text -->
+<div class="relative my-6 text-center">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-gray-200"></div>
+</div>
+<span class="relative bg-white px-4 text-xs font-semibold text-gray-400 tracking-wider uppercase">OR</span>
+</div>
+<!-- Social Login Options -->
+<div class="space-y-3">
+<!-- Google Login -->
+<button class="w-full py-2.5 px-4 border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center gap-3 transition-colors text-gray-700 font-semibold text-sm" type="button">
+<svg class="w-4 h-4" viewbox="0 0 24 24">
+<path d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.8-2.4 3.65v3.03h3.88c2.27-2.09 3.665-5.17 3.665-9.12z" fill="#4285F4"></path>
+<path d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.03c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.28v3.13C3.29 21.37 7.37 24 12 24z" fill="#34A853"></path>
+<path d="M5.28 14.29c-.25-.72-.38-1.49-.38-2.29s.13-1.57.38-2.29V6.58H1.28C.46 8.2.0 10.04.0 12s.46 3.8 1.28 5.42l4-3.13z" fill="#FBBC05"></path>
+<path d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.37 0 3.29 2.63 1.28 6.58l4 3.13c.95-2.83 3.6-4.96 6.72-4.96z" fill="#EA4335"></path>
+</svg>
+<span>Continue with Google</span>
+</button>
+<!-- WhatsApp / Facebook Option (Tailored to Indonesian Accessibility) -->
+<button class="w-full py-2.5 px-4 border border-gray-300 rounded-full hover:bg-gray-50 active:bg-gray-100 flex items-center justify-center gap-3 transition-colors text-gray-700 font-semibold text-sm" type="button">
+<svg class="w-4 h-4 text-[#1877F2] fill-current" viewbox="0 0 24 24">
+<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"></path>
+</svg>
+<span>Continue with Facebook</span>
+</button>
+</div>
+</div>
+<!-- Legal footer note -->
+<p class="text-xs text-center text-gray-400 mt-6 font-normal">
+        Terlindungi dengan enkripsi end-to-end. Mematuhi UU PDP Indonesia.
+      </p>
+</section>
+<!-- END: LeftAuthenticationSection -->
+<!-- BEGIN: RightShowcaseSection -->
+<!-- Pine green aesthetic showcase matching reference visual -->
+<section class="w-full lg:w-[52%] xl:w-[54%] bg-forest-gradient relative text-white p-8 sm:p-12 lg:p-14 flex flex-col justify-between overflow-hidden" data-purpose="showcase-column">
+<!-- Top Bar: Support Link -->
+<div class="flex justify-end items-center z-10">
+<a class="inline-flex items-center gap-2 text-sm font-medium text-emerald-100/90 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm" href="#">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M3 11a9 9 0 0117.8 0M3 11v4a2 2 0 002 2h1a2 2 0 002-2v-4a2 2 0 00-2-2H3zm18 0v4a2 2 0 01-2 2h-1a2 2 0 01-2-2v-4a2 2 0 012-2h1z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Support &amp; Edukasi 3T</span>
+</a>
+</div>
+<!-- Center Showcase: Floating Pure White Feature Card -->
+<div class="my-auto py-8 z-10 flex flex-col items-center">
+<div class="relative w-full max-w-[460px] bg-white rounded-3xl p-6 sm:p-7 shadow-feature-card text-gray-900 overflow-visible" data-purpose="floating-product-card">
+<div class="flex flex-col sm:flex-row items-start justify-between gap-4">
+<!-- Card Copy Left Side -->
+<div class="max-w-[230px]">
+<h2 class="text-xl sm:text-2xl font-extrabold tracking-tight text-gray-900 leading-snug">
+                Akses belajar setara tanpa kuota
+              </h2>
+<p class="text-xs sm:text-[13px] text-gray-500 mt-2.5 leading-relaxed">
+                Terkoneksi langsung dengan mentor terpilih melalui audio kompresi rendah &amp; modul luring interaktif.
+              </p>
+<!-- Mini Action Button -->
+<button class="mt-4 px-4 py-2 bg-brand hover:bg-brand-hover text-white text-xs font-bold rounded-lg transition shadow-md shadow-brand/10">
+                Pelajari Program
+              </button>
+</div>
+<!-- Stylized Student Pass / Digital Card Graphics -->
+<div class="w-full sm:w-[170px] h-[175px] relative flex items-center justify-center">
+<!-- Digital Student Pass Card in Perspective -->
+<div class="card-perspective w-44 h-28 rounded-2xl bg-gradient-to-tr from-brand-dark via-brand to-emerald-700 text-white p-3.5 flex flex-col justify-between border border-white/20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="w-2.5 h-2.5 rounded-full bg-brand-gold"></span>
+<span class="text-[10px] font-bold tracking-tight text-emerald-200">Ajari Aku ID</span>
+</div>
+<span class="text-[9px] font-semibold bg-white/20 px-1.5 py-0.5 rounded text-white uppercase tracking-wider">Pelosok</span>
+</div>
+<div>
+<div class="text-[11px] font-mono tracking-wider text-emerald-100 font-medium">8824 1092 3411 90XX</div>
+<div class="flex justify-between items-center text-[8px] text-emerald-300/80 mt-1">
+<span>AKTIF: 2025/2026</span>
+<span>100% BEBAS BIAYA</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Floating Micro Badge Overlapping Bottom Right of Card -->
+<div class="absolute -bottom-4 right-6 bg-white rounded-2xl py-2 px-3.5 shadow-xl border border-gray-100 flex items-center gap-2.5">
+<!-- Icon Graph -->
+<div class="w-7 h-7 rounded-lg bg-emerald-50 text-brand flex items-center justify-center font-bold">
+<svg class="w-4 h-4" fill="currentColor" viewbox="0 0 20 20">
+<path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"></path>
+</svg>
+</div>
+<div class="leading-tight">
+<div class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Siswa Terbantu</div>
+<div class="text-sm font-extrabold text-gray-900 tracking-tight">1,420+ Pelajar</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Headline and Copy Section -->
+<div class="z-10 text-center max-w-lg mx-auto pt-6">
+<h3 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mb-3">
+          Membuka Jendela Dunia ke Pelosok
+        </h3>
+<p class="text-sm text-emerald-100/75 leading-relaxed font-normal">
+          Mendampingi anak-anak di daerah 3T dengan ribuan guru relawan. Karena setiap mimpi berhak diperjuangkan secara adil di mana pun berada.
+        </p>
+<!-- Carousel / Slide Pagination Indicator -->
+<div class="flex items-center justify-center gap-3 mt-6 text-white/40">
+<button aria-label="Slide sebelumnya" class="hover:text-white transition" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+<div class="flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+<span class="w-3 h-1.5 rounded-full bg-white"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+</div>
+<button aria-label="Slide berikutnya" class="hover:text-white transition" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+</div>
+<!-- Atmospheric background subtle blurred rings -->
+<div class="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-emerald-600/10 blur-3xl pointer-events-none"></div>
+<div class="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-emerald-400/10 blur-2xl pointer-events-none"></div>
+</section>
+<!-- END: RightShowcaseSection -->
+</main>
+<!-- END: MainContainer -->
+<!-- Simple script for password toggle interactivity -->
+<script data-purpose="toggle-password-visibility">
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.querySelector('[aria-label="Tampilkan kata sandi"]');
+      const passwordInput = document.getElementById('password');
+
+      if (toggleBtn && passwordInput) {
+        toggleBtn.addEventListener('click', () => {
+          const isPassword = passwordInput.getAttribute('type') === 'password';
+          passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+          toggleBtn.classList.toggle('text-brand', isPassword);
+        });
+      }
+    });
+  </script>
+</body></html>
