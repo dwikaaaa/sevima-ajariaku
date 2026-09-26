@@ -40,6 +40,17 @@ class BookingController extends Controller
                     ]);
                 }
 
+                // Pastikan tidak ada sesi aktif (pending/approved/completed) pada slot ini
+                $hasActiveBooking = Booking::where('schedule_id', $schedule->id)
+                    ->whereIn('status', ['pending', 'approved', 'completed'])
+                    ->exists();
+
+                if ($hasActiveBooking) {
+                    throw ValidationException::withMessages([
+                        'schedule_id' => 'Maaf, slot jadwal ini sedang memiliki sesi belajar aktif.',
+                    ]);
+                }
+
                 // Buat record booking
                 $newBooking = Booking::create([
                     'student_id'   => $student->id,

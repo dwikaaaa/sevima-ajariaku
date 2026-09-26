@@ -37,11 +37,19 @@ class Schedule extends Model
     }
 
     /**
-     * Transaksi booking yang mengunci jadwal ini (1 to 1).
+     * Transaksi booking terkini yang mengunci jadwal ini.
      */
     public function booking(): HasOne
     {
-        return $this->hasOne(Booking::class, 'schedule_id');
+        return $this->hasOne(Booking::class, 'schedule_id')->latestOfMany();
+    }
+
+    /**
+     * Seluruh riwayat transaksi booking pada jadwal ini.
+     */
+    public function bookings(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Booking::class, 'schedule_id');
     }
 
     /**
