@@ -139,7 +139,7 @@
             </div>
 
             <!-- Navigation Links -->
-            <nav class="px-4 py-6 space-y-1.5 overflow-y-auto max-h-[calc(100vh-160px)]">
+            <nav class="px-4 py-6 space-y-1.5 flex-1 overflow-y-auto">
                 
                 <!-- 1. Dashboard -->
                 <a href="{{ route('admin.dashboard') }}" 
@@ -220,66 +220,106 @@
             </nav>
         </div>
 
-        <!-- Bottom User Card & Quick Logout -->
-        <div class="p-4 border-t border-white/10 bg-[#001f19]">
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 min-w-0">
-                    <div class="w-9 h-9 rounded-xl bg-secondary-container text-on-secondary-container flex items-center justify-center font-bold text-xs flex-shrink-0">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                    </div>
-                    <div class="min-w-0">
-                        <span class="block text-xs font-bold text-white truncate">{{ auth()->user()->name }}</span>
-                        <span class="block text-[10px] text-gray-400 truncate">Administrator</span>
-                    </div>
-                </div>
-
-                <form method="POST" action="{{ route('logout') }}" class="inline flex-shrink-0">
-                    @csrf
-                    <button type="submit" title="Keluar Akun" class="p-2 rounded-lg text-gray-400 hover:text-error hover:bg-white/10 transition-colors">
-                        <span class="material-symbols-outlined text-[20px]">logout</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-
     </aside>
 
     <!-- Main Content Workspace (Offset by Left Sidebar on Desktop) -->
     <div class="lg:pl-64 flex flex-col flex-1 min-h-screen">
         
-        <!-- Clean Admin Topbar (No "Cari Guru" link) -->
-        <header class="h-20 bg-white border-b border-gray-200 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+        <!-- Navbar Topbar matching Teacher Dashboard Theme -->
+        <header class="h-20 bg-white/80 backdrop-blur-md border-b border-surface-container-high sticky top-0 z-30 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4 transition-all">
             
             <!-- Left: Mobile Toggle & Page Title / Breadcrumb -->
             <div class="flex items-center gap-3">
                 <button type="button" 
-                        class="lg:hidden p-2 rounded-xl text-gray-600 hover:bg-gray-100 focus:outline-none" 
+                        class="lg:hidden p-2 rounded-xl text-on-surface hover:bg-surface-container-low focus:outline-none transition-colors" 
                         onclick="toggleAdminSidebar()">
                     <span class="material-symbols-outlined text-[24px]">menu</span>
                 </button>
 
                 <div class="flex items-center gap-2">
                     <span class="text-xs font-extrabold text-primary uppercase tracking-wider hidden sm:inline">Pusat Kendali</span>
-                    <span class="text-gray-300 hidden sm:inline">•</span>
-                    <span class="text-xs font-bold text-gray-600">@yield('page_title', 'Ajari Aku Mentoring Nusantara')</span>
+                    <span class="text-outline-variant hidden sm:inline">•</span>
+                    <span class="text-xs font-bold text-on-surface-variant">@yield('page_title', 'Ajari Aku Mentoring Nusantara')</span>
                 </div>
             </div>
 
-            <!-- Right: System Status & User Quick Info -->
+            <!-- Right: System Status & User Profile Dropdown Modal (matching Teacher Dashboard theme) -->
             <div class="flex items-center gap-3">
                 <div class="hidden md:flex items-center gap-2 bg-emerald-50 text-emerald-800 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-bold">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span>Sistem Terhubung</span>
                 </div>
 
-                <div class="flex items-center gap-2 pl-2 border-l border-gray-200">
-                    <span class="text-xs font-bold text-gray-700 hidden sm:inline">{{ auth()->user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}" class="inline">
-                        @csrf
-                        <button type="submit" title="Logout" class="p-2 text-gray-400 hover:text-error rounded-xl hover:bg-gray-100 transition-colors">
-                            <span class="material-symbols-outlined text-[20px]">power_settings_new</span>
-                        </button>
-                    </form>
+                <!-- Authenticated User Menu Toggle & Modal -->
+                <div class="relative" id="userMenuWrapper">
+                    <button type="button" 
+                            id="profileMenuToggle" 
+                            onclick="toggleProfileModal(event)"
+                            class="flex items-center gap-2.5 p-1.5 rounded-2xl hover:bg-surface-container-low transition-all border border-transparent hover:border-surface-container-high focus:outline-none focus:ring-2 focus:ring-secondary/40 cursor-pointer">
+                        <div class="text-right hidden sm:block pl-1">
+                            <span class="block text-xs font-bold text-on-surface leading-tight">{{ auth()->user()->name }}</span>
+                            <span class="block text-[11px] text-on-surface-variant capitalize">Administrator</span>
+                        </div>
+                        <div class="w-9 h-9 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-surface-container-high shrink-0">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                        <span class="material-symbols-outlined text-[18px] text-on-surface-variant hidden sm:inline transition-transform duration-200" id="profileChevron">expand_more</span>
+                    </button>
+
+                    <!-- Profile Modal Dropdown -->
+                    <div id="profileModal" 
+                         class="hidden absolute right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl shadow-xl border border-surface-container-high p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+                        
+                        <!-- 1. Username & Role -->
+                        <div class="p-3 bg-surface-container-low rounded-2xl flex items-center gap-3 mb-3 border border-surface-container-high/60">
+                            <div class="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center font-extrabold text-base shadow-sm shrink-0">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <span class="block text-sm font-extrabold text-primary truncate leading-tight">{{ auth()->user()->name }}</span>
+                                <span class="block text-[11px] text-on-surface-variant truncate mt-0.5">{{ auth()->user()->email }}</span>
+                                <span class="inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary-container text-on-primary">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+                                    Administrator
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Menu Items -->
+                        <div class="space-y-1.5 border-t border-surface-container-high pt-2">
+                            
+                            <!-- 2. Tombol Navigasi ke Halaman Edit Profil -->
+                            <a href="{{ route('profile.edit') }}" 
+                               class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-primary hover:bg-surface-container-low transition-colors group">
+                                <div class="w-8 h-8 rounded-lg bg-surface-container-high/60 flex items-center justify-center group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+                                    <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span>Edit Profil Pribadi</span>
+                                    <span class="text-[10px] text-on-surface-variant font-normal">Perbarui data diri &amp; akun</span>
+                                </div>
+                            </a>
+
+                            <!-- 3. Tombol Logout -->
+                            <div class="pt-1 border-t border-surface-container-high">
+                                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                    @csrf
+                                    <button type="submit" 
+                                            class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-error hover:bg-error/10 transition-colors group">
+                                        <div class="w-8 h-8 rounded-lg bg-error/10 flex items-center justify-center text-error group-hover:bg-error group-hover:text-white transition-colors">
+                                            <span class="material-symbols-outlined text-[18px]">logout</span>
+                                        </div>
+                                        <div class="flex flex-col text-left">
+                                            <span>Keluar Akun</span>
+                                            <span class="text-[10px] text-error/80 font-normal">Akhiri sesi di perangkat ini</span>
+                                        </div>
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </header>
@@ -361,6 +401,43 @@
             menu.classList.toggle('hidden');
             chevron.classList.toggle('rotate-180');
         }
+
+        function toggleProfileModal(event) {
+            if (event) event.stopPropagation();
+            const modal = document.getElementById('profileModal');
+            const chevron = document.getElementById('profileChevron');
+            if (modal) {
+                modal.classList.toggle('hidden');
+                if (chevron) {
+                    chevron.classList.toggle('rotate-180');
+                }
+            }
+        }
+
+        // Tutup modal profil saat klik di luar area
+        document.addEventListener('click', (event) => {
+            const modal = document.getElementById('profileModal');
+            const toggle = document.getElementById('profileMenuToggle');
+            const chevron = document.getElementById('profileChevron');
+            if (modal && !modal.classList.contains('hidden')) {
+                if (!modal.contains(event.target) && !toggle.contains(event.target)) {
+                    modal.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
+
+        // Tutup modal profil saat tombol Escape ditekan
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                const modal = document.getElementById('profileModal');
+                const chevron = document.getElementById('profileChevron');
+                if (modal && !modal.classList.contains('hidden')) {
+                    modal.classList.add('hidden');
+                    if (chevron) chevron.classList.remove('rotate-180');
+                }
+            }
+        });
 
         function dismissToastItem(toastEl) {
             if (!toastEl || toastEl.dataset.dismissing === 'true') return;
