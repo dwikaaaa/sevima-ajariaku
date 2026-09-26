@@ -185,7 +185,19 @@
                                     </div>
                                 </a>
 
-                                <!-- 3. Tombol Logout -->
+                                <!-- 3. Tombol Navigasi ke Halaman Histori Pembelajaran -->
+                                <a href="{{ route('history.index') }}" 
+                                   class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-primary hover:bg-surface-container-low transition-colors group">
+                                    <div class="w-8 h-8 rounded-lg bg-surface-container-high/60 flex items-center justify-center group-hover:bg-primary-container group-hover:text-on-primary transition-colors">
+                                        <span class="material-symbols-outlined text-[18px]">history_edu</span>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span>Histori Pembelajaran</span>
+                                        <span class="text-[10px] text-on-surface-variant font-normal">Riwayat sesi belajar &amp; catatan</span>
+                                    </div>
+                                </a>
+
+                                <!-- 4. Tombol Logout -->
                                 <div class="pt-1 border-t border-surface-container-high">
                                     <form method="POST" action="{{ route('logout') }}" class="w-full">
                                         @csrf
@@ -234,6 +246,11 @@
                 <a href="{{ route('profile.edit') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low flex items-center gap-2">
                     <span class="material-symbols-outlined text-[18px]">manage_accounts</span>
                     <span>Edit Profil Pribadi</span>
+                </a>
+
+                <a href="{{ route('history.index') }}" class="block px-3 py-2 rounded-lg text-sm font-semibold text-primary hover:bg-surface-container-low flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">history_edu</span>
+                    <span>Histori Pembelajaran</span>
                 </a>
 
                 @if(auth()->user()->isStudent())

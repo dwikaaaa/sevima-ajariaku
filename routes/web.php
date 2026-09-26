@@ -36,10 +36,11 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')
     ->name('logout');
 
-// Halaman Manajemen Profil Pribadi (Siswa, Guru, Admin)
+// Halaman Manajemen Profil & Histori Pembelajaran (Siswa, Guru, Admin)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [\App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [\App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/history', [\App\Http\Controllers\LearningHistoryController::class, 'index'])->name('history.index');
 });
 
 // ==========================================
