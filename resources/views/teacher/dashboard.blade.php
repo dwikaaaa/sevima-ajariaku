@@ -136,220 +136,279 @@
 
         </section>
 
-        <!-- 2. PERMOHONAN PEMESANAN DARI MURID (PERLU PERSETUJUAN GURU) -->
-        <section class="space-y-4">
-            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-amber-500">assignment_turned_in</span>
-                <span>Permohonan Sesi dari Murid ({{ $pendingBookings->count() }})</span>
-            </h3>
+        <!-- 2, 3, & 4. TABS NAVIGASI SESI PEMBELAJARAN (INSTAN TANPA RELOAD) -->
+        <section class="space-y-6 pt-4 border-t border-surface-container-high">
+            
+            <!-- Tab Switcher Bar -->
+            <div class="bg-surface-container-low p-1.5 rounded-2xl border border-surface-container-high flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 shadow-sm">
+                <div class="flex items-center gap-1.5 overflow-x-auto p-0.5">
+                    
+                    <!-- Tab 1: Permohonan Sesi dari Murid -->
+                    <button type="button" 
+                            id="tab-btn-pending"
+                            onclick="switchTeacherTab('pending')"
+                            class="teacher-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">assignment_turned_in</span>
+                        <span>Permohonan Sesi <span class="hidden lg:inline">dari Murid</span></span>
+                        <span id="badge-pending" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full {{ $pendingBookings->count() > 0 ? 'bg-amber-500 text-white' : 'bg-surface-container-highest text-on-surface-variant' }}">
+                            {{ $pendingBookings->count() }}
+                        </span>
+                    </button>
 
-            @if($pendingBookings->isEmpty())
-                <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
-                    Tidak ada murid yang sedang menunggu persetujuan jadwal.
+                    <!-- Tab 2: Sesi Aktif Siap Ajar -->
+                    <button type="button" 
+                            id="tab-btn-active"
+                            onclick="switchTeacherTab('active')"
+                            class="teacher-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">video_camera_front</span>
+                        <span>Sesi Aktif Siap Ajar</span>
+                        <span id="badge-active" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full {{ $approvedBookings->count() > 0 ? 'bg-secondary text-white' : 'bg-surface-container-highest text-on-surface-variant' }}">
+                            {{ $approvedBookings->count() }}
+                        </span>
+                    </button>
+
+                    <!-- Tab 3: Riwayat Sesi Belajar yang Telah Selesai -->
+                    <button type="button" 
+                            id="tab-btn-completed"
+                            onclick="switchTeacherTab('completed')"
+                            class="teacher-tab-btn flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">verified</span>
+                        <span>Riwayat Sesi Belajar <span class="hidden lg:inline">yang Telah Selesai</span></span>
+                        <span id="badge-completed" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-surface-container-highest text-on-surface-variant">
+                            {{ $completedBookings->count() }}
+                        </span>
+                    </button>
                 </div>
-            @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    @foreach($pendingBookings as $pb)
-                        <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4 flex flex-col justify-between">
-                            <div class="space-y-2">
-                                <div class="flex items-center justify-between">
-                                    <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                                        Menunggu Persetujuan Anda
-                                    </span>
-                                    <span class="text-xs text-outline">{{ $pb->created_at->diffForHumans() }}</span>
-                                </div>
 
-                                <h4 class="text-base font-extrabold text-primary">{{ $pb->student->name }}</h4>
-                                <p class="text-xs text-on-surface-variant font-medium">
-                                    Asal: {{ $pb->student->studentProfile->region_location ?? 'Pelosok' }} • {{ $pb->student->studentProfile->grade_level ?? 'Siswa' }} ({{ $pb->student->studentProfile->school_name ?? '-' }})
-                                </p>
+                <div class="hidden md:flex items-center gap-2 text-xs text-on-surface-variant px-3">
+                    <span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                    <span class="font-medium">Navigasi Langsung (Tanpa Reload)</span>
+                </div>
+            </div>
 
-                                <div class="p-3 bg-surface-container-low rounded-xl text-xs space-y-1">
-                                    <div class="font-bold text-primary flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-[16px] text-secondary">calendar_month</span>
-                                        {{ $pb->schedule->start_time->translatedFormat('l, d F Y (H:i') }} - {{ $pb->schedule->end_time->format('H:i') }} WIB)
+            <!-- PANEL 1: PERMOHONAN PEMESANAN DARI MURID -->
+            <div id="tab-panel-pending" class="teacher-tab-panel space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-amber-500">assignment_turned_in</span>
+                        <span>Permohonan Sesi dari Murid ({{ $pendingBookings->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Menunggu persetujuan jadwal Anda</span>
+                </div>
+
+                @if($pendingBookings->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Tidak ada murid yang sedang menunggu persetujuan jadwal.
+                    </div>
+                @else
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @foreach($pendingBookings as $pb)
+                            <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4 flex flex-col justify-between">
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="bg-amber-100 text-amber-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full">
+                                            Menunggu Persetujuan Anda
+                                        </span>
+                                        <span class="text-xs text-outline">{{ $pb->created_at->diffForHumans() }}</span>
                                     </div>
-                                    @if($pb->notes)
-                                        <p class="text-on-surface-variant italic">"{{ $pb->notes }}"</p>
-                                    @endif
-                                </div>
-                            </div>
 
-                            <!-- Action Form: Setujui dengan Link Pertemuan / Tolak -->
-                            <div class="space-y-3 pt-2 border-t border-surface-container-high">
-                                <form action="{{ route('teacher.bookings.approve', $pb) }}" method="POST" class="space-y-2">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div>
-                                        <label class="block text-[11px] font-bold text-primary mb-1">Tautan Video Conference (Google Meet/Jitsi)</label>
-                                        <input type="url" 
-                                               name="link_meeting" 
-                                               placeholder="Kosongkan jika ingin generate otomatis Jitsi Meet" 
-                                               class="w-full text-xs rounded-xl border-surface-container-high focus:border-secondary focus:ring-secondary py-1.5 px-3">
-                                    </div>
-                                    <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 shadow-sm transition-all flex items-center justify-center gap-1.5">
-                                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
-                                        <span>Setujui Sesi Belajar</span>
-                                    </button>
-                                </form>
-
-                                <form action="{{ route('teacher.bookings.reject', $pb) }}" method="POST" class="flex gap-2">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="text" name="cancellation_reason" placeholder="Alasan penolakan..." class="flex-1 text-xs rounded-xl border-surface-container-high py-1 px-2.5" required>
-                                    <button type="submit" class="px-3 py-1 text-xs font-bold text-error hover:bg-error-container/40 rounded-xl transition-colors">
-                                        Tolak
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-
-        <!-- 3. SESI AKTIF DISETUJUI & SELESAIKAN KELAS -->
-        <section class="space-y-4">
-            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-secondary">video_camera_front</span>
-                <span>Sesi Aktif Siap Ajar ({{ $approvedBookings->count() }})</span>
-            </h3>
-
-            @if($approvedBookings->isEmpty())
-                <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
-                    Belum ada sesi aktif yang disetujui.
-                </div>
-            @else
-                <div class="space-y-4">
-                    @foreach($approvedBookings as $ab)
-                        <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-container-high pb-4">
-                                <div>
-                                    <span class="text-xs font-bold text-secondary flex items-center gap-1">
-                                        <span class="material-symbols-outlined text-[16px]">verified</span>
-                                        Jadwal Terkonfirmasi
-                                    </span>
-                                    <h4 class="text-base font-extrabold text-primary mt-0.5">
-                                        Murid: {{ $ab->student->name }} ({{ $ab->student->studentProfile->region_location ?? 'Pelosok' }})
-                                    </h4>
+                                    <h4 class="text-base font-extrabold text-primary">{{ $pb->student->name }}</h4>
                                     <p class="text-xs text-on-surface-variant font-medium">
-                                        Waktu: {{ $ab->schedule->start_time->translatedFormat('l, d F Y • H:i') }} - {{ $ab->schedule->end_time->format('H:i') }} WIB
+                                        Asal: {{ $pb->student->studentProfile->region_location ?? 'Pelosok' }} • {{ $pb->student->studentProfile->grade_level ?? 'Siswa' }} ({{ $pb->student->studentProfile->school_name ?? '-' }})
                                     </p>
+
+                                    <div class="p-3 bg-surface-container-low rounded-xl text-xs space-y-1">
+                                        <div class="font-bold text-primary flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px] text-secondary">calendar_month</span>
+                                            {{ $pb->schedule->start_time->translatedFormat('l, d F Y (H:i') }} - {{ $pb->schedule->end_time->format('H:i') }} WIB)
+                                        </div>
+                                        @if($pb->notes)
+                                            <p class="text-on-surface-variant italic">"{{ $pb->notes }}"</p>
+                                        @endif
+                                    </div>
                                 </div>
 
-                                <div class="flex items-center gap-2">
-                                    <a href="{{ $ab->link_meeting }}" target="_blank" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-sm transition-all flex items-center gap-1.5">
-                                        <span class="material-symbols-outlined text-[16px]">open_in_new</span>
-                                        <span>Buka Ruang Belajar</span>
-                                    </a>
+                                <!-- Action Form: Setujui dengan Link Pertemuan / Tolak -->
+                                <div class="space-y-3 pt-2 border-t border-surface-container-high">
+                                    <form action="{{ route('teacher.bookings.approve', $pb) }}" method="POST" class="space-y-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div>
+                                            <label class="block text-[11px] font-bold text-primary mb-1">Tautan Video Conference (Google Meet/Jitsi)</label>
+                                            <input type="url" 
+                                                   name="link_meeting" 
+                                                   placeholder="Kosongkan jika ingin generate otomatis Jitsi Meet" 
+                                                   class="w-full text-xs rounded-xl border-surface-container-high focus:border-secondary focus:ring-secondary py-1.5 px-3">
+                                        </div>
+                                        <button type="submit" class="w-full py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 shadow-sm transition-all flex items-center justify-center gap-1.5">
+                                            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                                            <span>Setujui Sesi Belajar</span>
+                                        </button>
+                                    </form>
+
+                                    <form action="{{ route('teacher.bookings.reject', $pb) }}" method="POST" class="flex gap-2">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="text" name="cancellation_reason" placeholder="Alasan penolakan..." class="flex-1 text-xs rounded-xl border-surface-container-high py-1 px-2.5" required>
+                                        <button type="submit" class="px-3 py-1 text-xs font-bold text-error hover:bg-error-container/40 rounded-xl transition-colors">
+                                            Tolak
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
 
-                            @php
-                                $isEnded = $ab->isScheduleEnded();
-                                $endTimeStr = $ab->schedule?->end_time ? $ab->schedule->end_time->format('H:i') : '-';
-                            @endphp
+            <!-- PANEL 2: SESI AKTIF DISETUJUI & SIAP AJAR -->
+            <div id="tab-panel-active" class="teacher-tab-panel space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">video_camera_front</span>
+                        <span>Sesi Aktif Siap Ajar ({{ $approvedBookings->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Masuk ke ruang belajar & selesaikan sesi</span>
+                </div>
 
-                            <!-- Status Sesi & Form Selesaikan Sesi -->
-                            @if(! $isEnded)
-                                <!-- Sesi Masih Berlangsung / Belum Melewati Waktu Jadwal -->
-                                <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3">
-                                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                                        <div class="flex items-start gap-2.5">
-                                            <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">timer</span>
-                                            <div>
-                                                <h5 class="text-xs font-bold text-amber-950">Sesi Belajar Sedang Berlangsung</h5>
-                                                <p class="text-[11px] text-amber-800 mt-0.5">
-                                                    Sesuai ketentuan, Anda hanya dapat menandai sesi ini selesai setelah waktu jadwal berakhir pada pukul <strong class="text-amber-950">{{ $endTimeStr }} WIB</strong>.
-                                                </p>
+                @if($approvedBookings->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Belum ada sesi aktif yang disetujui.
+                    </div>
+                @else
+                    <div class="space-y-4">
+                        @foreach($approvedBookings as $ab)
+                            <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-container-high pb-4">
+                                    <div>
+                                        <span class="text-xs font-bold text-secondary flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[16px]">verified</span>
+                                            Jadwal Terkonfirmasi
+                                        </span>
+                                        <h4 class="text-base font-extrabold text-primary mt-0.5">
+                                            Murid: {{ $ab->student->name }} ({{ $ab->student->studentProfile->region_location ?? 'Pelosok' }})
+                                        </h4>
+                                        <p class="text-xs text-on-surface-variant font-medium">
+                                            Waktu: {{ $ab->schedule->start_time->translatedFormat('l, d F Y • H:i') }} - {{ $ab->schedule->end_time->format('H:i') }} WIB
+                                        </p>
+                                    </div>
+
+                                    <div class="flex items-center gap-2">
+                                        <a href="{{ $ab->link_meeting }}" target="_blank" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-primary text-white hover:bg-primary-container shadow-sm transition-all flex items-center gap-1.5">
+                                            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+                                            <span>Buka Ruang Belajar</span>
+                                        </a>
+                                    </div>
+                                </div>
+
+                                @php
+                                    $isEnded = $ab->isScheduleEnded();
+                                    $endTimeStr = $ab->schedule?->end_time ? $ab->schedule->end_time->format('H:i') : '-';
+                                @endphp
+
+                                <!-- Status Sesi & Form Selesaikan Sesi -->
+                                @if(! $isEnded)
+                                    <!-- Sesi Masih Berlangsung / Belum Melewati Waktu Jadwal -->
+                                    <div class="bg-amber-50/80 border border-amber-200 rounded-xl p-4 space-y-3">
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                            <div class="flex items-start gap-2.5">
+                                                <span class="material-symbols-outlined text-amber-600 text-[22px] flex-shrink-0 mt-0.5">timer</span>
+                                                <div>
+                                                    <h5 class="text-xs font-bold text-amber-950">Sesi Belajar Sedang Berlangsung</h5>
+                                                    <p class="text-[11px] text-amber-800 mt-0.5">
+                                                        Sesuai ketentuan, Anda hanya dapat menandai sesi ini selesai setelah waktu jadwal berakhir pada pukul <strong class="text-amber-950">{{ $endTimeStr }} WIB</strong>.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 self-start sm:self-auto flex-shrink-0">
+                                                <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
+                                                Selesai dalam {{ now()->diffForHumans($ab->schedule->end_time, true) }}
+                                            </span>
+                                        </div>
+
+                                        <!-- Form Disabled State -->
+                                        <div class="opacity-60 pointer-events-none filter grayscale-[30%] pt-2 border-t border-amber-200/60">
+                                            <div class="flex items-center justify-between gap-2 mb-2">
+                                                <span class="text-xs font-bold text-gray-700 flex items-center gap-1">
+                                                    <span class="material-symbols-outlined text-[16px]">edit_note</span>
+                                                    Catatan Rangkuman Belajar Murid
+                                                </span>
+                                                <span class="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                                                    Terkunci sampai {{ $endTimeStr }} WIB
+                                                </span>
+                                            </div>
+                                            <textarea rows="2" 
+                                                      disabled 
+                                                      placeholder="Formulir rangkuman dan tombol selesai akan otomatis aktif setelah sesi berakhir..." 
+                                                      class="w-full text-xs rounded-xl border-gray-300 bg-white/70 p-2.5 cursor-not-allowed"></textarea>
+                                            <div class="mt-2">
+                                                <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-300 text-gray-500 cursor-not-allowed flex items-center gap-1.5">
+                                                    <span class="material-symbols-outlined text-[16px]">lock_clock</span>
+                                                    <span>Tandai Selesai (Aktif Setelah {{ $endTimeStr }} WIB)</span>
+                                                </button>
                                             </div>
                                         </div>
-                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-extrabold bg-amber-200/80 text-amber-900 self-start sm:self-auto flex-shrink-0">
-                                            <span class="w-2 h-2 rounded-full bg-amber-600 animate-pulse"></span>
-                                            Selesai dalam {{ now()->diffForHumans($ab->schedule->end_time, true) }}
-                                        </span>
                                     </div>
-
-                                    <!-- Form Disabled State -->
-                                    <div class="opacity-60 pointer-events-none filter grayscale-[30%] pt-2 border-t border-amber-200/60">
-                                        <div class="flex items-center justify-between gap-2 mb-2">
-                                            <span class="text-xs font-bold text-gray-700 flex items-center gap-1">
-                                                <span class="material-symbols-outlined text-[16px]">edit_note</span>
-                                                Catatan Rangkuman Belajar Murid
+                                @else
+                                    <!-- Sesi Sudah Melewati Jadwal (Siap Ditandai Selesai) -->
+                                    <form action="{{ route('teacher.bookings.complete', $ab) }}" method="POST" class="bg-surface-container-low p-4 rounded-xl space-y-3 border border-secondary-container">
+                                        @csrf
+                                        @method('PATCH')
+                                        <div class="flex items-center justify-between flex-wrap gap-2">
+                                            <span class="text-xs font-bold text-primary flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
+                                                Tulis Catatan Rangkuman Belajar Murid (Sesi Selesai Pukul {{ $endTimeStr }} WIB)
                                             </span>
-                                            <span class="text-[10px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
-                                                Terkunci sampai {{ $endTimeStr }} WIB
-                                            </span>
+                                            
+                                            <label class="flex items-center gap-1.5 text-xs text-on-surface cursor-pointer">
+                                                <input type="hidden" name="student_attendance" value="0">
+                                                <input type="checkbox" name="student_attendance" value="1" checked class="rounded text-primary focus:ring-primary">
+                                                <span>Murid Hadir dalam Sesi</span>
+                                            </label>
                                         </div>
-                                        <textarea rows="2" 
-                                                  disabled 
-                                                  placeholder="Formulir rangkuman dan tombol selesai akan otomatis aktif setelah sesi berakhir..." 
-                                                  class="w-full text-xs rounded-xl border-gray-300 bg-white/70 p-2.5 cursor-not-allowed"></textarea>
-                                        <div class="mt-2">
-                                            <button type="button" disabled class="px-4 py-2 rounded-xl text-xs font-bold bg-gray-300 text-gray-500 cursor-not-allowed flex items-center gap-1.5">
-                                                <span class="material-symbols-outlined text-[16px]">lock_clock</span>
-                                                <span>Tandai Selesai (Aktif Setelah {{ $endTimeStr }} WIB)</span>
-                                            </button>
+
+                                        <div>
+                                            <textarea name="summary_notes" 
+                                                      rows="2" 
+                                                      placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan saran latihan mandiri..." 
+                                                      class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5 bg-white" 
+                                                      required>{{ old('summary_notes') }}</textarea>
+                                            @error('summary_notes')
+                                                <p class="text-xs text-error font-bold mt-1">{{ $message }}</p>
+                                            @enderror
                                         </div>
-                                    </div>
-                                </div>
-                            @else
-                                <!-- Sesi Sudah Melewati Jadwal (Siap Ditandai Selesai) -->
-                                <form action="{{ route('teacher.bookings.complete', $ab) }}" method="POST" class="bg-surface-container-low p-4 rounded-xl space-y-3 border border-secondary-container">
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="flex items-center justify-between flex-wrap gap-2">
-                                        <span class="text-xs font-bold text-primary flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-secondary text-[16px]">edit_note</span>
-                                            Tulis Catatan Rangkuman Belajar Murid (Sesi Selesai Pukul {{ $endTimeStr }} WIB)
-                                        </span>
-                                        
-                                        <label class="flex items-center gap-1.5 text-xs text-on-surface cursor-pointer">
-                                            <input type="hidden" name="student_attendance" value="0">
-                                            <input type="checkbox" name="student_attendance" value="1" checked class="rounded text-primary focus:ring-primary">
-                                            <span>Murid Hadir dalam Sesi</span>
-                                        </label>
-                                    </div>
 
-                                    <div>
-                                        <textarea name="summary_notes" 
-                                                  rows="2" 
-                                                  placeholder="Tuliskan materi yang telah dipelajari, perkembangan pemahaman murid, dan saran latihan mandiri..." 
-                                                  class="w-full text-xs rounded-xl border-surface-container-high focus:border-primary focus:ring-primary p-2.5 bg-white" 
-                                                  required>{{ old('summary_notes') }}</textarea>
-                                        @error('summary_notes')
-                                            <p class="text-xs text-error font-bold mt-1">{{ $message }}</p>
-                                        @enderror
-                                    </div>
+                                        <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1.5 shadow-sm">
+                                            <span class="material-symbols-outlined text-[16px]">task_alt</span>
+                                            <span>Tandai Selesai & Simpan Catatan Belajar</span>
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
 
-                                    <button type="submit" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-secondary text-white hover:bg-secondary/90 transition-all flex items-center gap-1.5 shadow-sm">
-                                        <span class="material-symbols-outlined text-[16px]">task_alt</span>
-                                        <span>Tandai Selesai & Simpan Catatan Belajar</span>
-                                    </button>
-                                </form>
-                            @endif
-                        </div>
-                    @endforeach
+            <!-- PANEL 3: RIWAYAT SESI BELAJAR YANG TELAH SELESAI -->
+            <div id="tab-panel-completed" class="teacher-tab-panel space-y-4 hidden">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
+                        <span class="material-symbols-outlined text-secondary">verified</span>
+                        <span>Riwayat Sesi Belajar yang Telah Selesai ({{ $completedBookings->count() }})</span>
+                    </h3>
+                    <span class="text-xs text-outline">Arsip sesi & catatan evaluasi murid</span>
                 </div>
-            @endif
-        </section>
 
-        <!-- 4. RIWAYAT SESI BELAJAR YANG TELAH SELESAI -->
-        <section class="space-y-4 pt-4 border-t border-surface-container-high">
-            <h3 class="text-base font-extrabold text-primary flex items-center gap-2">
-                <span class="material-symbols-outlined text-secondary">verified</span>
-                <span>Riwayat Sesi Belajar yang Telah Selesai ({{ $completedBookings->count() }})</span>
-            </h3>
-
-            @if($completedBookings->isEmpty())
-                <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
-                    Belum ada riwayat sesi belajar yang diselesaikan.
-                </div>
-            @else
-                <div class="space-y-4">
-                    @foreach($completedBookings as $cb)
-                        <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4">
-                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-container-high pb-4">
+                @if($completedBookings->isEmpty())
+                    <div class="p-8 bg-white rounded-2xl border border-surface-container-high text-center text-xs text-outline">
+                        Belum ada riwayat sesi belajar yang diselesaikan.
+                    </div>
+                @else
+                    <div class="space-y-4">
+                        @foreach($completedBookings as $cb)
+                            <div class="bg-white p-6 rounded-2xl border border-surface-container-high shadow-sm space-y-4">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-surface-container-high pb-4">
                                 <div>
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="bg-emerald-100 text-emerald-800 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1">
@@ -417,9 +476,62 @@
                     @endforeach
                 </div>
             @endif
-        </section>
+        </div>
+
+    </section>
 
     </div>
 
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    function switchTeacherTab(tabName) {
+        const tabs = ['pending', 'active', 'completed'];
+        
+        tabs.forEach(t => {
+            const btn = document.getElementById(`tab-btn-${t}`);
+            const panel = document.getElementById(`tab-panel-${t}`);
+            
+            if (!btn || !panel) return;
+
+            if (t === tabName) {
+                btn.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.remove('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-on-surface');
+                panel.classList.remove('hidden');
+            } else {
+                btn.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+                btn.classList.add('text-on-surface-variant', 'hover:bg-surface-container-high', 'hover:text-on-surface');
+                panel.classList.add('hidden');
+            }
+        });
+
+        // Simpan hash di URL tanpa reload browser
+        if (history.replaceState) {
+            history.replaceState(null, null, '#' + tabName);
+        }
+    }
+
+    // Inisialisasi tab aktif saat halaman selesai dimuat
+    document.addEventListener('DOMContentLoaded', () => {
+        let initialTab = 'active';
+        const hash = window.location.hash.replace('#', '');
+        
+        if (['pending', 'active', 'completed'].includes(hash)) {
+            initialTab = hash;
+        } else {
+            // Logika cerdas: dahulukan permohonan jika ada yang pending, lalu sesi aktif, lalu riwayat
+            @if($pendingBookings->count() > 0)
+                initialTab = 'pending';
+            @elseif($approvedBookings->count() > 0)
+                initialTab = 'active';
+            @elseif($completedBookings->count() > 0)
+                initialTab = 'completed';
+            @endif
+        }
+        
+        switchTeacherTab(initialTab);
+    });
+</script>
+@endpush
